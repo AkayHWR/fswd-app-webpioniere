@@ -4,7 +4,7 @@ nav_order: 0
 ---
 
 
-# [Webpioniere]
+# Webpioniere
 
 [Include a short project description. Below, include a representative, attractive screenshot of your final web app.]
 
