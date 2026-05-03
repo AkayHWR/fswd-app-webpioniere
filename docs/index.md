@@ -3,12 +3,8 @@ title: Home
 nav_order: 0
 ---
 
-{: .attention }
-> Any text enclosed by `[ ]` are **placeholders**, including the opening and closing brackets.
->
-> You may delete this `attention` box.
 
-# [Project Name]
+# [Webpioniere]
 
 [Include a short project description. Below, include a representative, attractive screenshot of your final web app.]
 

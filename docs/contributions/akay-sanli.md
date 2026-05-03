@@ -1,18 +1,11 @@
 ---
-title: Jane Dane
+title: Akay Mert Sanli
 parent: Individual Contributions
 nav_order: 1
 ---
 
-{: .attention }
-> Create a separate, individual file for every team member, proposed naming scheme: `📄firstname-lastname.md`.
->
-> *Find and replace* (VS Code: <kbd>Ctrl</kbd>+<kbd>H</kbd> / <kbd>⌘</kbd>+<kbd>H</kbd>) `Jane Dane` with the student's name. On this template page, you will find this name 4 times (including in this `attention` box). 
->
-> You may delete this `attention` box.
 
-{: .no_toc }
-# Jane Dane
+# Akay Sanli
 
 <details open markdown="block">
 <summary>Table of contents</summary>
@@ -25,11 +18,11 @@ nav_order: 1
 
 ### Target grade
 
-[State your target grade for this module. This is meant as a signal to your fellow team members.]
+1,0
 
 ### Personal goals
 
-[Spell out your personal goals regarding this Module, to create transparency among the team members.]
+Ich möchte meine Full-Stack App-Entwicklung Skills aktiv verbessern und interessiere mich persönlich für die entwicklung von Webapps. Außerdem finde ich Python sehr cool und möchte insgesamt eine coole App im Rahmen dieses Kurses entwickeln.
 
 ---
 
