@@ -28,7 +28,7 @@ Ich möchte meine Full-Stack App-Entwicklung Skills aktiv verbessern und interes
 
 ## Eidesstattliche Erklärung
 
-**[Jane Dane, Matrikelnr.: 1234567]**
+**[Akay Sanli, Matrikelnr.: 77209531265]**
 
 Ich erkläre an Eides statt:
 
