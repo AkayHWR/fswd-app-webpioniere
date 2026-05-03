@@ -1,5 +1,6 @@
-#Team: Webpioniere
-Team Mitglieder in Docs "Individual Contributions"
+# Team: Webpioniere
+
+Einzelne Teammitglieder in Docs "Individual Contributions"
 
 
 
