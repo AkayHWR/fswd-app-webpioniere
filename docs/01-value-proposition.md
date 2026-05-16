@@ -17,78 +17,91 @@ nav_order: 1
 
 ## The Problem
 
-Viele Studierende haben Schwierigkeiten, bei konkreten fachlichen Problemen schnell und unkompliziert Hilfe zu finden, insbesondere in Fächern wie Programmierung, Mathematik oder Statistik. Gleichzeitig gibt es viele Studierende, die über entsprechendes Wissen verfügen und bereit wären zu helfen.
+Viele Studierende haben Fragen zum Studium, die sich nicht sinnvoll durch Suchmaschinen oder KI Systeme beantworten lassen. Dazu gehören zum Beispiel Fragen zu Vertiefungen, Erfahrungen mit Dozenten, Tipps zu Prüfungen, Empfehlungen für Bachelorarbeiten oder der Austausch von Altklausuren.
 
-Bestehende Lösungen wie Foren, WhatsApp-Gruppen oder Lernplattformen sind oft unübersichtlich, langsam oder nicht auf spontane, konkrete Unterstützung ausgelegt. Es fehlt eine einfache, zentrale Plattform, die beide Seiten effizient miteinander verbindet.
+Solche Informationen basieren meist auf persönlichen Erfahrungen anderer Studierender. Bestehende Lösungen wie WhatsApp Gruppen, Discord Server oder Foren sind oft unübersichtlich. Informationen gehen verloren, Fragen werden mehrfach gestellt und hilfreiche Antworten sind schwer auffindbar.
+
+Zusätzlich fehlt häufig eine zentrale Plattform, auf der Studierende gezielt Fragen stellen, Erfahrungen teilen und hilfreiche Antworten sichtbar machen können.
 
 ## Our Solution
 
-Unsere Anwendung **StudySwap** ist eine einfache Web-App, die Studierende mit Unterstützungsbedarf (Help Seeker) mit Studierenden verbindet, die Hilfe anbieten möchten (Helper).
+**StudySwap** ist eine Web App für Studierende der HWR Berlin im Fachbereich 1 des Studiengangs Business Administration.
 
-Die App ermöglicht:
-- das Erstellen von Hilfeanfragen
-- das Durchsuchen bestehender Anfragen
-- das Bewerben auf Anfragen als Helfer
+Die Plattform dient nicht zur Lösung klassischer Fachaufgaben, die bereits von KI Systemen beantwortet werden können. Stattdessen konzentriert sich die Anwendung auf Fragen, die persönliche Erfahrungen, Meinungen oder Insiderwissen von anderen Studierenden erfordern.
 
-Die Funktionalität ist bewusst einfach gehalten und entspricht genau dem Umfang der tatsächlich implementierten Anwendung.
+Beispiele dafür sind:
+
+Welche Vertiefungen sich lohnen
+Erfahrungen mit bestimmten Dozenten
+Tipps zu Prüfungen
+Austausch von Altklausuren
+Erfahrungen zu Bachelorarbeiten
+Empfehlungen für Module oder Kurse
+
+Die Anmeldung ist nur mit einer gültigen Studentenmail möglich, damit ausschließlich echte Studierende Zugriff auf die Plattform haben.
+
+Nutzer können Fragen erstellen, bestehende Beiträge durchsuchen und Kommentare schreiben. Kommentare können mit Upvotes und Downvotes bewertet werden, damit hilfreiche Antworten schneller sichtbar werden.
+
+Der Ersteller einer Frage kann einen Kommentar als Lösung markieren. Zusätzlich gibt es vorgefertigte Kategorien wie Vertiefungen, Dozenten, Klausuren oder Bachelorarbeit, damit Inhalte übersichtlich organisiert werden.
+
+Ein Leaderboard zeigt besonders aktive und hilfreiche Nutzer der Plattform an.
+
+Häufig gestellte Fragen können erkannt werden, damit Nutzer schneller auf bestehende Antworten verwiesen werden können.
 
 ## Target User(s)
 
 **Primäre Zielgruppe:** Studierende
 
-Wir unterscheiden zwei typische Nutzergruppen:
+Es gibt zwei typische Nutzergruppen.
 
-**1. Help Seeker (z. B. Anna, 22)**
-- Studiert z. B. BWL oder Informatik
-- Hat Schwierigkeiten bei bestimmten Themen (z. B. Datenbanken, Programmierung)
-- Sucht schnelle, verständliche Hilfe
+**1. Help Seeker**
 
-**2. Helper (z. B. Max, 24)**
-- Fortgeschrittener Student mit guten Kenntnissen in bestimmten Fächern
-- Möchte anderen helfen oder eigenes Wissen festigen
-- Sucht eine einfache Möglichkeit, mit Hilfesuchenden in Kontakt zu treten
+Zum Beispiel Anna, 22 Jahre alt.
+
+Sie sucht Erfahrungsberichte und Empfehlungen von anderen Studierenden. Sie möchte wissen, welche Vertiefung sinnvoll ist, welche Dozenten gut erklären oder wie andere ihre Bachelorarbeit organisiert haben.
+
+**2. Helper**
+
+Zum Beispiel Max, 24 Jahre alt.
+
+Er hat bereits Erfahrungen im Studium gesammelt und möchte sein Wissen mit anderen teilen. Durch hilfreiche Antworten, Upvotes und das Leaderboard kann er innerhalb der Community sichtbar werden.
 
 ## Happy Path
 
-Der „Happy Path“ beschreibt den typischen Ablauf innerhalb der App:
+Ein Nutzer öffnet die Web App und registriert sich mit seiner HWR Studentenmail oder loggt sich ein.
 
-1. Nutzer öffnet die Web-App (Startseite)
-2. Nutzer registriert sich oder loggt sich ein
-3. Nutzer gelangt zum Dashboard
-4. Nutzer erstellt eine Hilfeanfrage
-   - *Eingabe von Titel, Beschreibung und Kategorie*
-5. Ein anderer Nutzer durchsucht die Liste der Anfragen
-6. Der zweite Nutzer wählt eine Anfrage aus
-7. Der zweite Nutzer klickt auf „Helfen“
-8. Verbindung zwischen Hilfesuchendem und Helfer entsteht
+Danach gelangt er zum Dashboard und erstellt eine Frage mit Titel, Beschreibung und Kategorie, zum Beispiel zum Thema Dozenten, Vertiefungen oder Bachelorarbeit.
 
-Dieser Ablauf zeigt klar die Funktionsweise der zweiseitigen Plattform, bei der zwei Nutzergruppen aktiv miteinander interagieren.
+Andere Nutzer durchsuchen die Beiträge, öffnen die Detailansicht und schreiben Kommentare oder teilen ihre Erfahrungen.
+
+Kommentare können bewertet werden. Der Ersteller der Frage markiert den hilfreichsten Kommentar als Lösung. Aktive Nutzer steigen im Leaderboard auf.
+
+Dieser Ablauf zeigt die Funktionsweise der Plattform, bei der Studierende ihr Wissen und ihre Erfahrungen miteinander teilen.
 
 ---
 
 ## Target Scope
 
-Die Anwendung umfasst folgende UI-Screens:
+Die Anwendung umfasst folgende Screens.
 
-**1. Login / Registrierungsseite**
-- Eingabefelder für Benutzername und Passwort
-- Button zum Einloggen oder Registrieren
+**1. Login und Registrierungsseite**
+
+Die Seite enthält Eingabefelder für Studentenmail und Passwort sowie Buttons zum Einloggen und Registrieren.
 
 **2. Dashboard**
-- Übersicht aller Hilfeanfragen
-- Navigation zum Erstellen einer neuen Anfrage
 
-**3. Anfrage erstellen**
-- Formular mit: Titel, Beschreibung, Kategorie
-- Submit-Button
+Das Dashboard zeigt alle Fragen mit Kategorie und Kurzbeschreibung an. Nutzer können Beiträge durchsuchen, filtern oder eine neue Frage erstellen.
 
-**4. Anfragen durchsuchen**
-- Liste aller Anfragen
-- Anzeige von Titel und Kurzbeschreibung
-- Button: „Helfen“
+**3. Frage erstellen**
 
-**5. Detailansicht einer Anfrage**
-- Vollständige Beschreibung
-- Button zum Bewerben als Helfer
+Auf dieser Seite erstellt der Nutzer eine neue Frage mit Titel, Beschreibung und Kategorie.
 
-Die Screens sind bewusst einfach gehalten und entsprechen genau der geplanten und umsetzbaren Funktionalität der Web-App.
+**4. Detailansicht einer Frage**
+
+Die Detailansicht zeigt die vollständige Beschreibung der Frage sowie den Kommentarbereich. Nutzer können Kommentare schreiben, Beiträge bewerten und Kommentare als Lösung markieren.
+
+**5. Leaderboard**
+
+Das Leaderboard zeigt die aktivsten und hilfreichsten Nutzer basierend auf Upvotes oder markierten Lösungen an.
+
+Die Funktionen der Anwendung sind bewusst einfach gehalten und orientieren sich an einer realistisch umsetzbaren Web App für Studierende der HWR Berlin.
