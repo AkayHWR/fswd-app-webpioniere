@@ -87,21 +87,22 @@ Die Anwendung umfasst folgende Screens.
 **1. Login und Registrierungsseite**
 
 Die Seite enthält Eingabefelder für Studentenmail und Passwort sowie Buttons zum Einloggen und Registrieren.
-
+![Login und Registrierung](assets/images/login-register.jpg)
 **2. Dashboard**
 
 Das Dashboard zeigt alle Fragen mit Kategorie und Kurzbeschreibung an. Nutzer können Beiträge durchsuchen, filtern oder eine neue Frage erstellen.
-
+![Dashboard](assets/images/dashboard.jpg)
 **3. Frage erstellen**
 
 Auf dieser Seite erstellt der Nutzer eine neue Frage mit Titel, Beschreibung und Kategorie.
-
+![Frage erstellen](assets/images/frage-erstellen.jpg)
 **4. Detailansicht einer Frage**
 
 Die Detailansicht zeigt die vollständige Beschreibung der Frage sowie den Kommentarbereich. Nutzer können Kommentare schreiben, Beiträge bewerten und Kommentare als Lösung markieren.
-
+![Detailansicht einer fFrage](assets/images/detailansicht.jpg)
 **5. Leaderboard**
 
 Das Leaderboard zeigt die aktivsten und hilfreichsten Nutzer basierend auf Upvotes oder markierten Lösungen an.
 
 Die Funktionen der Anwendung sind bewusst einfach gehalten und orientieren sich an einer realistisch umsetzbaren Web App für Studierende der HWR Berlin.
+![Leaderboard](assets/images/leaderboard.jpg)
