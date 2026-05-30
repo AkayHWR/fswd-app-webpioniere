@@ -1,16 +1,34 @@
-CREATE TABLE todo (
+CREATE TABLE user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    complete BOOLEAN DEFAULT FALSE,
-    description TEXT NOT NULL
+    email TEXT UNIQUE NOT NULL,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    password TEXT NOT NULL
 );
-CREATE TABLE list (
+
+CREATE TABLE question (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
+    user_id INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    hashtags TEXT NOT NULL,
+    upvotes INTEGER DEFAULT 0,
+    downvotes INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE
 );
-CREATE TABLE todo_list (
-   todo_id INTEGER,
-   list_id INTEGER,
-   PRIMARY KEY (todo_id, list_id),
-   FOREIGN KEY (todo_id) REFERENCES todo (id) ON UPDATE CASCADE ON DELETE CASCADE,
-   FOREIGN KEY (list_id) REFERENCES list (id) ON UPDATE CASCADE ON DELETE CASCADE
+
+CREATE TABLE answer (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    question_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    content TEXT NOT NULL,
+    is_solution INTEGER DEFAULT 0,
+    upvotes INTEGER DEFAULT 0,
+    downvotes INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (question_id) REFERENCES question (id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE
 );
