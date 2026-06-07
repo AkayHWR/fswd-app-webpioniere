@@ -58,3 +58,7 @@ def list(id):
 def run_insert_sample():
     db.insert_sample()
     return 'Database flushed and populated with some sample data.'
+
+@app.route('/question/<int:question_id>')
+def question_detail(question_id):
+    return f"Hier entsteht bald die Detailansicht fuer Frage-ID {question_id}"
