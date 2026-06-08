@@ -12,7 +12,7 @@ app.teardown_appcontext(db.close_db_con)
 
 @app.route('/')
 def index():
-    return redirect(url_for('lists'))
+    return redirect(url_for('dashboard'))
 
 @app.route('/insert/sample')
 def run_insert_sample():
@@ -32,7 +32,6 @@ def register():
 def login():
     pass #muss auch noch implementiert werden
 
-
 @app.route('/question/create', methods=['GET', 'POST'])
 def create_question():
     return "Hier entsteht bald das Formular zum Erstellen einer neuen Frage."
@@ -40,3 +39,7 @@ def create_question():
 @app.route('/leaderboard')
 def leaderboard():
     return "Hier entsteht bald das Leaderboard mit der Punkteuebersicht."
+
+@app.route('/dashboard')
+def dashboard():
+    return "Hier entsteht bald das Dashboard mit den Fragen und Antworten."
