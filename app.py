@@ -71,3 +71,12 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     pass #muss auch noch implementiert werden
+
+
+@app.route('/question/create', methods=['GET', 'POST'])
+def create_question():
+    return "Hier entsteht bald das Formular zum Erstellen einer neuen Frage."
+
+@app.route('/leaderboard')
+def leaderboard():
+    return "Hier entsteht bald das Leaderboard mit der Punkteuebersicht."
