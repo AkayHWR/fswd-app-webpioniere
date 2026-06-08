@@ -9,12 +9,12 @@
 <body>
 <nav>
     <h1>To-Do App</h1>
-    <a href="{{ url_for('lists') }}">Lists</a>
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
 </nav>
 <section class="content">
     <header>{% block HEADER %}{% endblock %}</header>
     {% block CONTENT %}{% endblock %}
 </section>
 </body>
-
+    
 </html>
