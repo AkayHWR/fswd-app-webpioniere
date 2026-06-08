@@ -62,3 +62,12 @@ def run_insert_sample():
 @app.route('/question/<int:question_id>')
 def question_detail(question_id):
     return f"Hier entsteht bald die Detailansicht fuer Frage-ID {question_id}"
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+   pass #muss erst noch implementiert werden
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    pass #muss auch noch implementiert werden
