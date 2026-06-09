@@ -25,12 +25,12 @@ def question_detail(question_id):
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-   pass #muss erst noch implementiert werden
+   return render_template('register.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    pass #muss auch noch implementiert werden
+    return render_template('login.html')
 
 @app.route('/question/create', methods=['GET', 'POST'])
 def create_question():
