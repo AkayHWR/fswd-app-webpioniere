@@ -34,11 +34,11 @@ def login():
 
 @app.route('/question/create', methods=['GET', 'POST'])
 def create_question():
-    return "Hier entsteht bald das Formular zum Erstellen einer neuen Frage."
+    return render_template('create_question.html')
 
 @app.route('/leaderboard')
 def leaderboard():
-    return "Hier entsteht bald das Leaderboard mit der Punkteuebersicht."
+    return render_template('leaderboard.html', users=[])
 
 @app.route('/dashboard')
 def dashboard():
