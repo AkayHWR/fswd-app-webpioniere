@@ -42,4 +42,4 @@ def leaderboard():
 
 @app.route('/dashboard')
 def dashboard():
-    return "Hier entsteht bald das Dashboard mit den Fragen und Antworten."
+    return render_template('dashboard.html')
