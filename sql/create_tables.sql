@@ -32,3 +32,21 @@ CREATE TABLE answer (
     FOREIGN KEY (question_id) REFERENCES question (id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE
 );
+
+CREATE TABLE question_vote (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    question_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    vote INTEGER NOT NULL,
+    FOREIGN KEY (question_id) REFERENCES question (id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE
+);
+
+CREATE TABLE answer_vote (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    answer_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    vote INTEGER NOT NULL,
+    FOREIGN KEY (answer_id) REFERENCES answer (id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE
+);
