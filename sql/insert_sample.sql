@@ -22,3 +22,26 @@ INSERT INTO answer (question_id, user_id, content, is_solution, upvotes, downvot
 (2, 1, 'Alte Klausuren rechnen und danach die Fehlerliste wiederholen.', 1, 1, 0),
 (3, 2, 'Ich habe meine Bachelorarbeit im Unternehmen geschrieben. Planung ist wichtig.', 1, 2, 0),
 (4, 1, 'Projektmanagement war fair und gut organisiert.', 0, 0, 0);
+
+INSERT INTO question_vote (question_id, user_id, vote) VALUES
+(1, 2, 1),
+(1, 3, 1),
+(2, 1, 1),
+(3, 1, 1),
+(3, 2, -1),
+(5, 2, 1),
+(5, 3, 1),
+(5, 4, 1),
+(7, 1, 1),
+(8, 1, 1),
+(8, 2, 1),
+(8, 3, -1);
+
+INSERT INTO answer_vote (answer_id, user_id, vote) VALUES
+(1, 1, 1),
+(1, 3, 1),
+(2, 1, 1),
+(2, 2, -1),
+(3, 2, 1),
+(4, 1, 1),
+(4, 3, 1);
