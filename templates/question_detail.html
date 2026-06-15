@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block TITLE %}
+Fragen Details
+{% endblock %}
+
+{% block CONTENT %}
+
+<a href="{{ url_for('dashboard') }}">Zurueck</a>
+
+<div>
+    <h1>
+        Hier entsteht die Detailansicht für die Frage mit der ID: {{ question_id }}
+    </h1>
+
+    <p>
+        In den nächsten Schritten werden hier die echten Daten geladen.
+    </p>
+</div>
+
+
+<h2>Antworten</h2>
+
+<div>
+    Noch keine Antworten geladen .
+</div>
+
+{% endblock %}
