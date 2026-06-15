@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Neue Frage{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body p-4">
+                <h2 class="card-title mb-4">Neue Frage erstellen</h2>
+                
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Fragetitel</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Beschreibung</label>
+                        <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="hashtags" class="form-label">Hashtags</label>
+                        <input type="text" class="form-control" id="hashtags" name="hashtags" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-danger">Frage veröffentlichen</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
