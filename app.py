@@ -1,4 +1,5 @@
 import os
+import re
 from flask import Flask, render_template, redirect, url_for, request
 import db
 
@@ -9,6 +10,14 @@ app.config.from_mapping(
 )
 app.cli.add_command(db.init_db)
 app.teardown_appcontext(db.close_db_con)
+
+
+def hashtags_from_text(text):
+    tags = re.findall(r'#[A-Za-z0-9_ÄÖÜäöüß]+', text)
+    return sorted(set(tags))
+
+
+
 
 @app.route('/')
 def index():
