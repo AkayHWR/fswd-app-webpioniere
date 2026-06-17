@@ -30,7 +30,35 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template('login.html')
+    if request.method == 'GET':
+        if 'user_id' in session:
+            return redirect(url_for('dashboard'))
+
+        return render_template('login.html')
+
+    else:  # POST request method
+        email = request.form['email'].strip()
+        password = request.form['password'].strip()
+
+        con = db.get_db_con()
+        user = con.execute(
+            'SELECT * FROM user WHERE email = ?',
+            (email,)
+        ).fetchone()
+
+        if user is None or user['password'] != password:
+            return render_template(
+                'login.html',
+                error='E-Mail oder Passwort ist falsch.'
+            )
+
+        session.clear()
+        session['user_id'] = user['id']
+        session['full_name'] =  user['first_name'] + ' ' + user['last_name']
+        
+
+        return redirect(url_for('dashboard'))
+
 
 @app.route('/question/create', methods=['GET', 'POST'])
 def create_question():
