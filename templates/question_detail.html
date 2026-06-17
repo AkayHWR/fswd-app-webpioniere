@@ -1,28 +1,105 @@
 {% extends "base.html" %}
 
-{% block TITLE %}
-Fragen Details
+
+{% block title %}
+{{ question.title }}
 {% endblock %}
 
-{% block CONTENT %}
 
-<a href="{{ url_for('dashboard') }}">Zurueck</a>
 
-<div>
-    <h1>
-        Hier entsteht die Detailansicht für die Frage mit der ID: {{ question_id }}
-    </h1>
+{% block content %}
 
-    <p>
-        In den nächsten Schritten werden hier die echten Daten geladen.
-    </p>
+
+<a class="btn btn-outline-secondary btn-sm mb-3" 
+href="{{ url_for('dashboard') }}">
+    Zurück
+</a>
+
+
+
+<div class="card mb-4">
+
+    <div class="card-body">
+
+
+        <h1 class="card-title h3">
+            {{ question.title }}
+        </h1>
+
+
+        <p class="card-text">
+            {{ question.description }}
+        </p>
+
+
+
+        <div class="mb-3">
+
+            {% for tag in question.hashtags.split() %}
+
+                <span class="badge text-bg-light">
+                    {{ tag }}
+                </span>
+
+            {% endfor %}
+
+        </div>
+
+
+
+        <small class="text-muted">
+            von {{ question.username }}
+        </small>
+
+
+
+    </div>
+
 </div>
+
+
 
 
 <h2>Antworten</h2>
 
-<div>
-    Noch keine Antworten geladen .
+
+
+{% for answer in answers %}
+
+
+<div class="card mb-3">
+
+    <div class="card-body">
+
+
+        <p>
+            {{ answer.content }}
+        </p>
+
+
+        <small class="text-muted">
+            von {{ answer.username }}
+        </small>
+
+
+    </div>
+
+
 </div>
+
+
+
+{% else %}
+
+
+<div class="alert alert-info">
+    Noch keine Antworten.
+</div>
+
+
+
+{% endfor %}
+
+
 
 {% endblock %}
