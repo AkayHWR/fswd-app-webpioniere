@@ -10,6 +10,11 @@
     </div>
 </div>
 
+<form method="get" class="input-group mb-3">
+    <input class="form-control" name="q" value="{{ search }}" placeholder="Suche nach Fragen">
+    <button class="btn btn-outline-danger">Suchen</button>
+</form>
+
 {% if questions %}
     <div class="list-group">
         {% for question in questions %}

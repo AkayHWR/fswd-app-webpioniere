@@ -86,13 +86,21 @@ def leaderboard():
 @app.route('/dashboard')
 def dashboard():
     con = db.get_db_con()
+    search = request.args.get('q', '').strip()
+
     questions = con.execute(
         '''
         SELECT q.*, u.first_name || ' ' || u.last_name AS username
         FROM question q
         JOIN user u ON q.user_id = u.id
+        WHERE q.title LIKE ? OR q.description LIKE ?
         ORDER BY q.id DESC
-        '''
+        ''',
+        (f'%{search}%', f'%{search}%')
     ).fetchall()
 
-    return render_template('dashboard.html', questions=questions)
+    return render_template(
+        'dashboard.html', 
+        questions=questions,
+        search=search
+    )

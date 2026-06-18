@@ -42,3 +42,14 @@ footer {
 .list-group-item:hover {
     background-color: #f8f9fa;
 }
+
+.btn {
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
