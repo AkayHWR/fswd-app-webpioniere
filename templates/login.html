@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-body p-5">
+                <h2 class="card-title mb-4 text-center">
+                    Login zu StudySwap
+                </h2>
+
+                {% if error %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endif %}
+
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">
+                            HWR-E-Mail
+                        </label>
+
+                        <input
+                            type="email"
+                            class="form-control"
+                            id="email"
+                            name="email"
+                            placeholder="dein.name@stud.hwr-berlin.de "
+                            autocomplete="email"
+                            required
+                            autofocus
+                        >
+
+                        <small class="text-muted">
+                            Bitte verwende deine hwr-E-Mail-Adresse.
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">
+                            Passwort
+                        </label>
+
+                        <input
+                            type="password"
+                            class="form-control"
+                            id="password"
+                            name="password"
+                            autocomplete="current-password"
+                            required
+                        >
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="btn btn-danger w-100 mb-3"
+                    >
+                        Anmelden
+                    </button>
+                </form>
+
+                <p class="text-center mb-0">
+                    Noch keinen Account?
+                    <a href="{{ url_for('register') }}">
+                        Hier registrieren
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
