@@ -1,5 +1,6 @@
 import os
 import re
+from functools import wraps
 from flask import Flask, render_template, redirect, url_for, request, session
 import db
 
@@ -17,6 +18,14 @@ def hashtags_from_text(text):
     tags = re.findall(r'#[A-Za-z0-9_ÄÖÜäöüß]+', text)
     return sorted(set(tags))
 
+
+def login_required(route):
+    @wraps(route)
+    def wrapper(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+        return route(*args, **kwargs)
+    return wrapper
 
 
 
