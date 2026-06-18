@@ -1,9 +1,9 @@
 INSERT INTO user (email, first_name, last_name, password) VALUES
-('anna@hwr-berlin.de', 'Anna', 'Schmidt', 'passwort'),
-('max@hwr-berlin.de', 'Max', 'Mueller', 'passwort'),
-('julia@hwr-berlin.de', 'Julia', 'Fischer', 'passwort'),
-('tobias@hwr-berlin.de', 'Tobias', 'Weber', 'passwort'),
-('sara@hwr-berlin.de', 'Sara', 'Klein', 'passwort');
+('anna@stud.hwr-berlin.de', 'Anna', 'Schmidt', 'passwort'),
+('max@stud.hwr-berlin.de', 'Max', 'Mueller', 'passwort'),
+('julia@stud.hwr-berlin.de', 'Julia', 'Fischer', 'passwort'),
+('tobias@stud.hwr-berlin.de', 'Tobias', 'Weber', 'passwort'),
+('sara@stud.hwr-berlin.de', 'Sara', 'Klein', 'passwort');
 
 INSERT INTO question (user_id, title, description, hashtags, upvotes, downvotes) VALUES
 (1, 'Welche Vertiefung lohnt sich?', 'Ich bin unsicher, welche Vertiefung am besten passt.', '#Vertiefung #Studium', 2, 0),
