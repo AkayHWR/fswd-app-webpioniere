@@ -1,5 +1,5 @@
 INSERT INTO user (email, first_name, last_name, password) VALUES
-('anna@stud.hwr-berlin.de ', 'Anna', 'Schmidt', 'passwort'),
+('anna@stud.hwr-berlin.de', 'Anna', 'Schmidt', 'passwort'),
 ('max@stud.hwr-berlin.de', 'Max', 'Mueller', 'passwort'),
 ('julia@stud.hwr-berlin.de', 'Julia', 'Fischer', 'passwort'),
 ('tobias@stud.hwr-berlin.de', 'Tobias', 'Weber', 'passwort'),
