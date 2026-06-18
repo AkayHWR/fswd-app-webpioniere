@@ -16,7 +16,14 @@ def hashtags_from_text(text):
     tags = re.findall(r'#[A-Za-z0-9_ÄÖÜäöüß]+', text)
     return sorted(set(tags))
 
-
+def all_hashtags():
+    con = db.get_db_con()
+    rows = con.execute('SELECT hashtags FROM question').fetchall()
+    counts = {}
+    for row in rows:
+        for tag in hashtags_from_text(row['hashtags']):
+            counts[tag] = counts.get(tag, 0) + 1
+    return sorted(counts.items(), key=lambda item: item[1], reverse=True)
 
 
 @app.route('/')
@@ -87,6 +94,8 @@ def leaderboard():
 def dashboard():
     con = db.get_db_con()
     search = request.args.get('q', '').strip()
+    selected_tags = request.args.getlist('tag')
+
 
     questions = con.execute(
         '''
@@ -99,8 +108,18 @@ def dashboard():
         (f'%{search}%', f'%{search}%')
     ).fetchall()
 
+    if selected_tags:
+        questions = [
+            question for question in questions
+            if all(tag in hashtags_from_text(question['hashtags']) for tag in selected_tags)
+        ]
+
+    tags = all_hashtags()
+
     return render_template(
         'dashboard.html', 
         questions=questions,
-        search=search
+        search=search,
+        selected_tags=selected_tags,
+        tags=tags
     )
