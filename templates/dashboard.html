@@ -10,5 +10,17 @@
     </div>
 </div>
 
-<div class="alert alert-info">Keine Fragen gefunden.</div>
+{% if questions %}
+    <div class="list-group">
+        {% for question in questions %}
+            <div class="list-group-item mb-2">
+                <h5>{{ question.title }}</h5>
+                <p class="text-muted mb-1">{{ question.description[:160] }}</p>
+                <small class="text-muted">von {{ question.username }}</small>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info">Keine Fragen gefunden.</div>
+{% endif %}
 {% endblock %}

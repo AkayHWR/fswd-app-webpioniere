@@ -85,4 +85,14 @@ def leaderboard():
 
 @app.route('/dashboard')
 def dashboard():
-    return render_template('dashboard.html')
+    con = db.get_db_con()
+    questions = con.execute(
+        '''
+        SELECT q.*, u.first_name || ' ' || u.last_name AS username
+        FROM question q
+        JOIN user u ON q.user_id = u.id
+        ORDER BY q.id DESC
+        '''
+    ).fetchall()
+
+    return render_template('dashboard.html', questions=questions)
