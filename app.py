@@ -1,5 +1,6 @@
 import os
 import re
+from functools import wraps
 from flask import Flask, render_template, redirect, url_for, request, session
 import db
 
@@ -17,6 +18,14 @@ def hashtags_from_text(text):
     tags = re.findall(r'#[A-Za-z0-9_ÄÖÜäöüß]+', text)
     return sorted(set(tags))
 
+
+def login_required(route):
+    @wraps(route)
+    def wrapper(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+        return route(*args, **kwargs)
+    return wrapper
 
 
 
@@ -105,8 +114,29 @@ def login():
 
 
 @app.route('/question/create', methods=['GET', 'POST'])
+@login_required
 def create_question():
+    if request.method == 'POST':
+        title = request.form['title'].strip()
+        description = request.form['description'].strip()
+        hashtags = ' '.join(hashtags_from_text(request.form['hashtags']))
+
+        if title == '' or description == '':
+            return render_template('create_question.html', error='Titel und Beschreibung sind Pflicht.')
+        if hashtags == '':
+            return render_template('create_question.html', error='Bitte trage mindestens einen Hashtag ein.')
+
+        con = db.get_db_con()
+        con.execute(
+            'INSERT INTO question (user_id, title, description, hashtags) VALUES (?, ?, ?, ?)',
+            (session['user_id'], title, description, hashtags)
+        )
+        con.commit()
+        return redirect(url_for('dashboard'))
+
     return render_template('create_question.html')
+
+
 
 @app.route('/leaderboard')
 def leaderboard():
