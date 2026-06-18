@@ -44,7 +44,7 @@
 {% if questions %}
     <div class="list-group">
         {% for question in questions %}
-            <div class="list-group-item mb-2">
+            <a class="list-group-item list-group-item-action mb-2 shadow-sm" href="{{ url_for('question_detail', question_id=question.id) }}">
                 <h5>{{ question.title }}</h5>
                 <p class="text-muted mb-2">{{ question.description[:160] }}</p>
                 {% for tag in question.hashtags.split() %}
@@ -52,7 +52,10 @@
                 {% endfor %}
                 <br>
                 <small class="text-muted">von {{ question.username }}</small>
-            </div>
+                <div class="text-muted small mt-1">
+                    {{ question.answer_count }} Antworten · {{ question.upvotes }} hoch / {{ question.downvotes }} runter
+                </div>                
+            </a>
         {% endfor %}
     </div>
 {% else %}

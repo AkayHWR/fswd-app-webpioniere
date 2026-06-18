@@ -99,10 +99,12 @@ def dashboard():
 
     questions = con.execute(
         '''
-        SELECT q.*, u.first_name || ' ' || u.last_name AS username
+        SELECT q.*, u.first_name || ' ' || u.last_name AS username, COUNT(a.id) AS answer_count
         FROM question q
         JOIN user u ON q.user_id = u.id
+        LEFT JOIN answer a ON a.question_id = q.id
         WHERE q.title LIKE ? OR q.description LIKE ?
+        GROUP BY q.id
         ORDER BY q.id DESC
         ''',
         (f'%{search}%', f'%{search}%')
