@@ -115,11 +115,14 @@ def dashboard():
         ]
 
     tags = all_hashtags()
+    top_tags = tags[:5]
+    other_tags = tags[5:]
 
     return render_template(
         'dashboard.html', 
         questions=questions,
         search=search,
         selected_tags=selected_tags,
-        tags=tags
+        top_tags=top_tags,
+        other_tags=other_tags
     )

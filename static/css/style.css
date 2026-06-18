@@ -53,3 +53,7 @@ footer {
     opacity: 0.9;
 }
 
+.badge {
+    padding: 0.4rem 0.8rem;
+    font-weight: 500;
+}
