@@ -5,27 +5,43 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-8">
-        <div class="card">
-            <div class="card-body p-4">
+        <div class="card shadow">
+            <div class="card-body p-5">
                 <h2 class="card-title mb-4">Neue Frage erstellen</h2>
+                
+                {% if error %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ error }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endif %}
                 
                 <form method="post">
                     <div class="mb-3">
                         <label for="title" class="form-label">Fragetitel</label>
-                        <input type="text" class="form-control" id="title" name="title" required>
+                        <input type="text" class="form-control" id="title" name="title" 
+                               placeholder="z.B. Welche Vertiefung lohnt sich?" required>
+                        <small class="text-muted">Kurz und aussagekräftig</small>
                     </div>
                     
                     <div class="mb-3">
                         <label for="description" class="form-label">Beschreibung</label>
-                        <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+                        <textarea class="form-control" id="description" name="description" 
+                                  rows="6" placeholder="Beschreibe deine Frage im Detail..." required></textarea>
+                        <small class="text-muted">Je detaillierter, desto bessere Antworten!</small>
                     </div>
                     
                     <div class="mb-3">
                         <label for="hashtags" class="form-label">Hashtags</label>
-                        <input type="text" class="form-control" id="hashtags" name="hashtags" required>
+                        <input type="text" class="form-control" id="hashtags" name="hashtags" 
+                               placeholder="z.B. #Vertiefung #Finance #Studium" required>
+                        <small class="text-muted">Diese Hashtags sind die Kategorien. Es gibt keine feste Liste.</small>
                     </div>
                     
-                    <button type="submit" class="btn btn-danger">Frage veröffentlichen</button>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">Frage veröffentlichen</button>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Abbrechen</a>
+                    </div>
                 </form>
             </div>
         </div>
