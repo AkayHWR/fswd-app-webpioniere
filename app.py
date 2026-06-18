@@ -111,6 +111,12 @@ def login():
         
 
         return redirect(url_for('dashboard'))
+    
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('dashboard'))
 
 
 @app.route('/question/create', methods=['GET', 'POST'])
