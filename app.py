@@ -76,6 +76,10 @@ def question_detail(question_id):
         answers=answers
     )
 
+def hwr_email(email):
+    email = email.strip().lower()
+    return email.endswith('@stud.hwr-berlin.de')
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
    return render_template('register.html')
