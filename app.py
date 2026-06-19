@@ -1,11 +1,13 @@
 import os
 import re
-from flask import Flask, render_template, redirect, url_for, request
+from functools import wraps
+from flask import Flask, render_template, redirect, url_for, request, session
 import db
 
 app = Flask(__name__)
 
 app.config.from_mapping(
+    SECRET_KEY = 'secret_key_just_for_dev_environment',
     DATABASE=os.path.join(app.instance_path, 'studyswap.sqlite')
 )
 app.cli.add_command(db.init_db)
@@ -24,6 +26,15 @@ def all_hashtags():
         for tag in hashtags_from_text(row['hashtags']):
             counts[tag] = counts.get(tag, 0) + 1
     return sorted(counts.items(), key=lambda item: item[1], reverse=True)
+
+def login_required(route):
+    @wraps(route)
+    def wrapper(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+        return route(*args, **kwargs)
+    return wrapper
+
 
 
 @app.route('/')
@@ -80,11 +91,60 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template('login.html')
+    if request.method == 'GET':
+        if 'user_id' in session:
+            return redirect(url_for('dashboard'))
+
+        return render_template('login.html')
+
+    else:  # POST request method
+        email = request.form['email'].strip()
+        password = request.form['password'].strip()
+
+        con = db.get_db_con()
+        user = con.execute(
+            'SELECT * FROM user WHERE email = ?',
+            (email,)
+        ).fetchone()
+
+        if user is None or user['password'] != password:
+            return render_template(
+                'login.html',
+                error='E-Mail oder Passwort ist falsch.'
+            )
+
+        session.clear()
+        session['user_id'] = user['id']
+        session['full_name'] =  user['first_name'] + ' ' + user['last_name']
+        
+
+        return redirect(url_for('dashboard'))
+
 
 @app.route('/question/create', methods=['GET', 'POST'])
+@login_required
 def create_question():
+    if request.method == 'POST':
+        title = request.form['title'].strip()
+        description = request.form['description'].strip()
+        hashtags = ' '.join(hashtags_from_text(request.form['hashtags']))
+
+        if title == '' or description == '':
+            return render_template('create_question.html', error='Titel und Beschreibung sind Pflicht.')
+        if hashtags == '':
+            return render_template('create_question.html', error='Bitte trage mindestens einen Hashtag ein.')
+
+        con = db.get_db_con()
+        con.execute(
+            'INSERT INTO question (user_id, title, description, hashtags) VALUES (?, ?, ?, ?)',
+            (session['user_id'], title, description, hashtags)
+        )
+        con.commit()
+        return redirect(url_for('dashboard'))
+
     return render_template('create_question.html')
+
+
 
 @app.route('/leaderboard')
 def leaderboard():
