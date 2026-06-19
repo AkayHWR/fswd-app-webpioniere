@@ -111,7 +111,7 @@ def login():
 
         session.clear()
         session['user_id'] = user['id']
-        session['full_name'] =  user['first_name'] + ' ' + user['last_name']
+        session['username'] =  user['first_name'] + ' ' + user['last_name']
         
 
         return redirect(url_for('dashboard'))
