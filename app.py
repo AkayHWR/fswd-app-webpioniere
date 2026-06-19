@@ -18,6 +18,14 @@ def hashtags_from_text(text):
     tags = re.findall(r'#[A-Za-z0-9_ÄÖÜäöüß]+', text)
     return sorted(set(tags))
 
+def all_hashtags():
+    con = db.get_db_con()
+    rows = con.execute('SELECT hashtags FROM question').fetchall()
+    counts = {}
+    for row in rows:
+        for tag in hashtags_from_text(row['hashtags']):
+            counts[tag] = counts.get(tag, 0) + 1
+    return sorted(counts.items(), key=lambda item: item[1], reverse=True)
 
 def login_required(route):
     @wraps(route)
@@ -144,4 +152,39 @@ def leaderboard():
 
 @app.route('/dashboard')
 def dashboard():
-    return render_template('dashboard.html')
+    con = db.get_db_con()
+    search = request.args.get('q', '').strip()
+    selected_tags = request.args.getlist('tag')
+
+
+    questions = con.execute(
+        '''
+        SELECT q.*, u.first_name || ' ' || u.last_name AS username, COUNT(a.id) AS answer_count
+        FROM question q
+        JOIN user u ON q.user_id = u.id
+        LEFT JOIN answer a ON a.question_id = q.id
+        WHERE q.title LIKE ? OR q.description LIKE ?
+        GROUP BY q.id
+        ORDER BY q.id DESC
+        ''',
+        (f'%{search}%', f'%{search}%')
+    ).fetchall()
+
+    if selected_tags:
+        questions = [
+            question for question in questions
+            if all(tag in hashtags_from_text(question['hashtags']) for tag in selected_tags)
+        ]
+
+    tags = all_hashtags()
+    top_tags = tags[:5]
+    other_tags = tags[5:]
+
+    return render_template(
+        'dashboard.html', 
+        questions=questions,
+        search=search,
+        selected_tags=selected_tags,
+        top_tags=top_tags,
+        other_tags=other_tags
+    )

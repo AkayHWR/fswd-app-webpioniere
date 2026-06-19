@@ -10,5 +10,55 @@
     </div>
 </div>
 
-<div class="alert alert-info">Keine Fragen gefunden.</div>
+<form method="get" class="input-group mb-3">
+    {% for tag in selected_tags %}
+        <input type="hidden" name="tag" value="{{ tag }}">
+    {% endfor %}
+    <input class="form-control" name="q" value="{{ search }}" placeholder="Suche nach Fragen">
+    <button class="btn btn-outline-danger">Suchen</button>
+</form>
+
+{% if selected_tags %}
+    <div class="mb-2">
+        <strong>Aktive Filter:</strong>
+        {% for tag in selected_tags %}
+            <span class="badge text-bg-danger">{{ tag }}</span>
+        {% endfor %}
+        <a class="btn btn-sm btn-secondary ms-2" href="{{ url_for('dashboard', q=search) }}">Filter löschen</a>
+    </div>
+{% endif %}
+
+<div class="d-flex flex-wrap gap-2 mb-3">
+    {% for tag, count in top_tags %}
+        <a class="btn btn-sm {{ 'btn-danger' if tag in selected_tags else 'btn-outline-danger' }}"
+           href="{{ url_for('dashboard', q=search, tag=selected_tags + [tag]) if tag not in selected_tags else url_for('dashboard', q=search, tag=selected_tags) }}">
+            {{ tag }} ({{ count }})
+        </a>
+    {% endfor %}
+
+    {% if other_tags %}
+        <span class="btn btn-sm btn-outline-secondary disabled">+{{ other_tags|length }}</span>
+    {% endif %}
+</div>
+
+{% if questions %}
+    <div class="list-group">
+        {% for question in questions %}
+            <a class="list-group-item list-group-item-action mb-2 shadow-sm" href="{{ url_for('question_detail', question_id=question.id) }}">
+                <h5>{{ question.title }}</h5>
+                <p class="text-muted mb-2">{{ question.description[:160] }}</p>
+                {% for tag in question.hashtags.split() %}
+                    <span class="badge text-bg-light">{{ tag }}</span>
+                {% endfor %}
+                <br>
+                <small class="text-muted">von {{ question.username }}</small>
+                <div class="text-muted small mt-1">
+                    {{ question.answer_count }} Antworten · {{ question.upvotes }} hoch / {{ question.downvotes }} runter
+                </div>                
+            </a>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info">Keine Fragen gefunden.</div>
+{% endif %}
 {% endblock %}
