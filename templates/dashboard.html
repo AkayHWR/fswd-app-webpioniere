@@ -8,6 +8,11 @@
         <h1>Dashboard</h1>
         <p class="text-muted mb-0">Fragen finden, filtern und beantworten.</p>
     </div>
+    {% if session.user_id %}
+        <a class="btn btn-danger" href="{{ url_for('create_question') }}">Neue Frage</a>
+    {% else %}
+        <a class="btn btn-danger" href="{{ url_for('login') }}">Einloggen zum Fragen stellen</a>
+    {% endif %}
 </div>
 
 <form method="get" class="input-group mb-3">
@@ -18,26 +23,46 @@
     <button class="btn btn-outline-danger">Suchen</button>
 </form>
 
-{% if selected_tags %}
-    <div class="mb-2">
-        <strong>Aktive Filter:</strong>
-        {% for tag in selected_tags %}
-            <span class="badge text-bg-danger">{{ tag }}</span>
-        {% endfor %}
-        <a class="btn btn-sm btn-secondary ms-2" href="{{ url_for('dashboard', q=search) }}">Filter löschen</a>
-    </div>
-{% endif %}
+<div class="mb-4">
+    {% if selected_tags %}
+        <div class="mb-2">
+            <strong>Aktive Filter:</strong>
+            {% for tag in selected_tags %}
+                <span class="badge text-bg-danger">{{ tag }}</span>
+            {% endfor %}
+        </div>
+    {% endif %}
 
-<div class="d-flex flex-wrap gap-2 mb-3">
-    {% for tag, count in top_tags %}
-        <a class="btn btn-sm {{ 'btn-danger' if tag in selected_tags else 'btn-outline-danger' }}"
-           href="{{ url_for('dashboard', q=search, tag=selected_tags + [tag]) if tag not in selected_tags else url_for('dashboard', q=search, tag=selected_tags) }}">
-            {{ tag }} ({{ count }})
-        </a>
-    {% endfor %}
+    <div class="d-flex flex-wrap gap-2">
+        {% for tag, count in top_tags %}
+            <a class="btn btn-sm {{ 'btn-danger' if tag in selected_tags else 'btn-outline-danger' }}"
+               href="{{ url_for('dashboard', q=search, tag=selected_tags + [tag]) if tag not in selected_tags else url_for('dashboard', q=search, tag=selected_tags) }}">
+                {{ tag }} ({{ count }})
+            </a>
+        {% endfor %}
+
+        {% if other_tags %}
+            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#moreTags">
+                +{{ other_tags|length }}
+            </button>
+        {% endif %}
+
+        {% if selected_tags %}
+            <a class="btn btn-sm btn-secondary" href="{{ url_for('dashboard', q=search) }}">Filter löschen</a>
+        {% endif %}
+    </div>
 
     {% if other_tags %}
-        <span class="btn btn-sm btn-outline-secondary disabled">+{{ other_tags|length }}</span>
+        <div class="collapse mt-2" id="moreTags">
+            <div class="d-flex flex-wrap gap-2">
+                {% for tag, count in other_tags %}
+                    <a class="btn btn-sm {{ 'btn-danger' if tag in selected_tags else 'btn-outline-danger' }}"
+                       href="{{ url_for('dashboard', q=search, tag=selected_tags + [tag]) if tag not in selected_tags else url_for('dashboard', q=search, tag=selected_tags) }}">
+                        {{ tag }} ({{ count }})
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
     {% endif %}
 </div>
 
@@ -45,16 +70,22 @@
     <div class="list-group">
         {% for question in questions %}
             <a class="list-group-item list-group-item-action mb-2 shadow-sm" href="{{ url_for('question_detail', question_id=question.id) }}">
-                <h5>{{ question.title }}</h5>
-                <p class="text-muted mb-2">{{ question.description[:160] }}</p>
-                {% for tag in question.hashtags.split() %}
-                    <span class="badge text-bg-light">{{ tag }}</span>
-                {% endfor %}
-                <br>
-                <small class="text-muted">von {{ question.username }}</small>
-                <div class="text-muted small mt-1">
-                    {{ question.answer_count }} Antworten · {{ question.upvotes }} hoch / {{ question.downvotes }} runter
-                </div>                
+                <div class="d-flex justify-content-between gap-3">
+                    <div>
+                        <h5>{{ question.title }}</h5>
+                        <p class="text-muted mb-2">{{ question.description[:160] }}</p>
+                        <div>
+                            {% for tag in question.hashtags.split() %}
+                                <span class="badge text-bg-light">{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                        <small class="text-muted">von {{ question.username }}</small>
+                    </div>
+                    <div class="text-end text-nowrap">
+                        <div>{{ question.answer_count }} Antworten</div>
+                        <small>{{ question.upvotes }} hoch / {{ question.downvotes }} runter</small>
+                    </div>
+                </div>
             </a>
         {% endfor %}
     </div>
