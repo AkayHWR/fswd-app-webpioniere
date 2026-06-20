@@ -106,9 +106,70 @@ def question_detail(question_id):
         answers=answers
     )
 
+def hwr_email(email):
+    email = email.strip().lower()
+    return email.endswith('@stud.hwr-berlin.de')
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-   return render_template('register.html')
+    if request.method == 'GET':
+        if 'user_id' in session:
+            return redirect(url_for('dashboard'))
+
+        return render_template('register.html')
+    else:  # POST request method
+        first_name = request.form['first_name'].strip()
+        last_name = request.form['last_name'].strip()
+        email = request.form['email'].strip().lower()
+        password = request.form['password'].strip()
+        confirm_password = request.form['confirm_password'].strip()
+
+        if not first_name or not last_name or not email or not password:
+            return render_template(
+                'register.html',
+                error='Bitte fülle alle Felder aus.'
+            )
+
+        if not hwr_email(email):
+            return render_template(
+                'register.html',
+                error='Bitte verwende deine HWR-E-Mail-Adresse.'
+            )
+
+        if password != confirm_password:
+            return render_template(
+                'register.html',
+                error='Die Passwörter stimmen nicht überein.'
+            )
+
+        con = db.get_db_con()
+
+        existing_user = con.execute(
+            'SELECT * FROM user WHERE email = ?',
+            (email,)
+        ).fetchone()
+
+        if existing_user is not None:
+            return render_template(
+                'register.html',
+                error='Für diese E-Mail-Adresse existiert bereits ein Account.'
+            )
+
+        cursor = con.execute(
+            '''
+            INSERT INTO user (email, first_name, last_name, password)
+            VALUES (?, ?, ?, ?)
+            ''',
+            (email, first_name, last_name, password)
+        )
+        con.commit()
+
+        session.clear()
+        session['user_id'] = cursor.lastrowid
+        session['username'] = first_name + ' ' + last_name
+
+        return redirect(url_for('dashboard'))
+
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -137,10 +198,16 @@ def login():
 
         session.clear()
         session['user_id'] = user['id']
-        session['full_name'] =  user['first_name'] + ' ' + user['last_name']
+        session['username'] =  user['first_name'] + ' ' + user['last_name']
         
 
         return redirect(url_for('dashboard'))
+    
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('dashboard'))
 
 
 @app.route('/question/create', methods=['GET', 'POST'])
