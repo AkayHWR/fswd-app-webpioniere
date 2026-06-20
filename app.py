@@ -37,6 +37,29 @@ def login_required(route):
 
 
 
+
+def calculate_points(user_id):
+    con = db.get_db_con()
+    upvotes = con.execute(
+        'SELECT COUNT(*) FROM answer_vote WHERE vote = 1 AND answer_id IN (SELECT id FROM answer WHERE user_id = ?)',
+        (user_id,)
+    ).fetchone()[0]
+    downvotes = con.execute(
+        'SELECT COUNT(*) FROM answer_vote WHERE vote = -1 AND answer_id IN (SELECT id FROM answer WHERE user_id = ?)',
+        (user_id,)
+    ).fetchone()[0]
+    solutions = con.execute(
+        'SELECT COUNT(*) FROM answer WHERE user_id = ? AND is_solution = 1',
+        (user_id,)
+    ).fetchone()[0]
+    return upvotes - downvotes + solutions * 5
+
+
+
+
+
+
+
 @app.route('/')
 def index():
     return redirect(url_for('dashboard'))
@@ -148,7 +171,28 @@ def create_question():
 
 @app.route('/leaderboard')
 def leaderboard():
-    return render_template('leaderboard.html', users=[])
+    con = db.get_db_con()
+    users = con.execute("SELECT id, first_name || ' ' || last_name AS username FROM user").fetchall()
+    leaderboard_users = []
+
+    for user in users:
+        answer_count = con.execute(
+            'SELECT COUNT(*) FROM answer WHERE user_id = ?',
+            (user['id'],)
+        ).fetchone()[0]
+        solution_count = con.execute(
+            'SELECT COUNT(*) FROM answer WHERE user_id = ? AND is_solution = 1',
+            (user['id'],)
+        ).fetchone()[0]
+        leaderboard_users.append({
+            'username': user['username'],
+            'points': calculate_points(user['id']),
+            'answer_count': answer_count,
+            'solution_count': solution_count
+        })
+
+    leaderboard_users.sort(key=lambda user: user['points'], reverse=True)
+    return render_template('leaderboard.html', users=leaderboard_users)
 
 @app.route('/dashboard')
 def dashboard():
