@@ -100,6 +100,56 @@ href="{{ url_for('dashboard') }}">
 
 {% endfor %}
 
+<div class="card mt-4">
+
+    <div class="card-body">
+
+
+        {% if session.user_id %}
+
+
+            <h3>
+                Deine Antwort
+            </h3>
+
+
+            <form method="post">
+
+
+                <textarea
+                    class="form-control mb-3"
+                    name="content"
+                    rows="5"
+                    required>
+                </textarea>
+
+
+                <button class="btn btn-danger">
+                    Antwort speichern
+                </button>
+
+
+            </form>
+
+
+
+        {% else %}
+
+
+            <a class="btn btn-danger"
+               href="{{ url_for('login') }}">
+
+                Einloggen zum Antworten
+
+            </a>
+
+
+        {% endif %}
+
+
+    </div>
+
+</div>
 
 
 {% endblock %}

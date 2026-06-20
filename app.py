@@ -46,10 +46,35 @@ def run_insert_sample():
     db.insert_sample()
     return 'Database flushed and populated with some sample data.'
 
-@app.route('/question/<int:question_id>')
+@app.route('/question/<int:question_id>', methods=['GET', 'POST'])
 def question_detail(question_id):
 
     con = db.get_db_con()
+
+    if request.method == 'POST':
+
+        content = request.form['content'].strip()
+
+        con.execute(
+            '''
+            INSERT INTO answer(question_id, user_id, content)
+            VALUES (?, ?, ?)
+            ''',
+            (
+                question_id,
+                session['user_id'],
+                content
+            )
+        )
+
+        con.commit()
+
+        return redirect(
+            url_for(
+                'question_detail',
+                question_id=question_id
+            )
+        )
 
     question = con.execute(
         '''
@@ -61,10 +86,8 @@ def question_detail(question_id):
         (question_id,)
     ).fetchone()
 
-
     if question is None:
         return redirect(url_for('dashboard'))
-
 
     answers = con.execute(
         '''
@@ -76,7 +99,6 @@ def question_detail(question_id):
         ''',
         (question_id,)
     ).fetchall()
-
 
     return render_template(
         'question_detail.html',
