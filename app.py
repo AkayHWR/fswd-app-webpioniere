@@ -1,7 +1,7 @@
 import os
 import re
 from functools import wraps
-from flask import Flask, render_template, redirect, url_for, request, session
+from flask import Flask, jsonify, render_template, redirect, url_for, request, session
 import db
 
 app = Flask(__name__)
@@ -321,3 +321,9 @@ def dashboard():
         top_tags=top_tags,
         other_tags=other_tags
     )
+
+@app.route('/api/questions')
+def api_questions():
+    con = db.get_db_con()
+    questions = con.execute('SELECT * FROM question ORDER BY id DESC').fetchall()
+    return jsonify([dict(question) for question in questions])
