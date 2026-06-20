@@ -75,3 +75,20 @@ footer {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 0.2rem rgba(196, 0, 26, 0.25);
 }
+
+
+table {
+    border-collapse: collapse;
+}
+
+thead th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    border: none;
+}
+
+tbody tr:hover {
+    background-color: #f8f9fa;
+}
