@@ -69,64 +69,247 @@ def run_insert_sample():
     db.insert_sample()
     return 'Database flushed and populated with some sample data.'
 
+
+
+def update_answer_votes(answer_id):
+
+    con = db.get_db_con()
+
+    upvotes = con.execute('SELECT COUNT(*) FROM answer_vote WHERE answer_id = ? AND vote = 1',
+        (answer_id,)
+    ).fetchone()[0]
+
+
+    downvotes = con.execute('SELECT COUNT(*) FROM answer_vote WHERE answer_id = ? AND vote = -1',
+        (answer_id,)
+    ).fetchone()[0]
+
+
+    con.execute('UPDATE answer SET upvotes = ?, downvotes = ? WHERE id = ?',
+        (upvotes, downvotes, answer_id)
+    )
+
+def update_question_votes(question_id):
+
+    con = db.get_db_con()
+
+    upvotes = con.execute('SELECT COUNT(*) FROM question_vote WHERE question_id = ? AND vote = 1',
+        (question_id,)
+    ).fetchone()[0]
+
+
+    downvotes = con.execute('SELECT COUNT(*) FROM question_vote WHERE question_id = ? AND vote = -1',
+        (question_id,)
+    ).fetchone()[0]
+
+
+    con.execute('UPDATE question SET upvotes = ?, downvotes = ? WHERE id = ?',
+        (upvotes, downvotes, question_id)
+    )
+
+
+def change_vote(table, item_column, item_id, vote):
+
+    con = db.get_db_con()
+
+    user_id = session['user_id']
+
+
+    old_vote = con.execute(f'SELECT vote FROM {table} WHERE {item_column} = ? AND user_id = ?',
+        (item_id, user_id)
+    ).fetchone()
+
+
+    if old_vote is None:
+
+        con.execute(f'INSERT INTO {table} ({item_column}, user_id, vote) VALUES (?, ?, ?)',
+            (item_id, user_id, vote)
+        )
+
+
+    elif old_vote['vote'] == vote:
+
+        con.execute(f'DELETE FROM {table} WHERE {item_column} = ? AND user_id = ?',
+            (item_id, user_id)
+        )
+
+
+    else:
+
+        con.execute(f'UPDATE {table} SET vote = ? WHERE {item_column} = ? AND user_id = ?',
+            (vote, item_id, user_id)
+        )
+
+
 @app.route('/question/<int:question_id>', methods=['GET', 'POST'])
 def question_detail(question_id):
 
     con = db.get_db_con()
 
-    if request.method == 'POST':
-
-        content = request.form['content'].strip()
-
-        con.execute(
-            '''
-            INSERT INTO answer(question_id, user_id, content)
-            VALUES (?, ?, ?)
-            ''',
-            (
-                question_id,
-                session['user_id'],
-                content
-            )
-        )
-
-        con.commit()
-
-        return redirect(
-            url_for(
-                'question_detail',
-                question_id=question_id
-            )
-        )
-
-    question = con.execute(
-        '''
-        SELECT q.*, u.first_name || ' ' || u.last_name AS username
-        FROM question q
-        JOIN user u ON q.user_id = u.id
-        WHERE q.id = ?
-        ''',
-        (question_id,)
+    question = con.execute( 
+    '''
+    SELECT q.*, u.first_name || ' ' || u.last_name AS username
+    FROM question q
+    JOIN user u ON q.user_id = u.id
+    WHERE q.id = ?
+    ''', (question_id,)
     ).fetchone()
 
     if question is None:
         return redirect(url_for('dashboard'))
 
+    if request.method == 'POST':
+
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+
+
+        content = request.form['content'].strip()
+
+        if content != '':
+
+            con.execute('INSERT INTO answer(question_id, user_id, content)VALUES (?, ?, ?)',
+                    (question_id,session['user_id'],content)
+                )
+
+            con.commit()
+
+        return redirect(
+            url_for('question_detail',question_id=question_id)
+        )
+
     answers = con.execute(
-        '''
-        SELECT a.*, u.first_name || ' ' || u.last_name AS username
-        FROM answer a
-        JOIN user u ON a.user_id = u.id
-        WHERE a.question_id = ?
-        ORDER BY a.id DESC
-        ''',
-        (question_id,)
+    '''
+    SELECT a.*, u.first_name || ' ' || u.last_name AS username
+    FROM answer a
+    JOIN user u ON a.user_id = u.id
+    WHERE a.question_id = ?
+    ORDER BY a.is_solution DESC, a.upvotes - a.downvotes DESC, a.id DESC
+    ''',(question_id,)
     ).fetchall()
+
+    answer_votes = {}
+    question_vote = None
+
+
+    if 'user_id' in session:
+
+        answer_vote_rows = con.execute('SELECT answer_id, vote FROM answer_vote WHERE user_id = ? AND answer_id IN ( SELECT id FROM answer WHERE question_id = ?)',
+            (session['user_id'], question_id)
+        ).fetchall()
+
+
+        answer_votes = {
+            row['answer_id']: row['vote']
+            for row in answer_vote_rows
+        }
+
+
+        question_vote = con.execute('SELECT vote FROM question_vote WHERE user_id = ? AND question_id = ?',
+            (session['user_id'], question_id)
+        ).fetchone()
+
+
+        if question_vote is not None:
+            question_vote = question_vote['vote']
+
 
     return render_template(
         'question_detail.html',
         question=question,
-        answers=answers
+        answers=answers,
+        answer_votes=answer_votes,
+        question_vote=question_vote
+    )
+    
+@app.route('/question/<int:question_id>/vote/<vote>', methods=['POST'])
+@login_required
+def vote_question(question_id, vote):
+
+    vote = int(vote)
+
+    if vote not in [1, -1]:
+        return redirect(
+            url_for('question_detail',question_id=question_id)
+        )
+
+    con = db.get_db_con()
+
+    change_vote('question_vote','question_id',question_id,vote)
+
+    update_question_votes(question_id)
+
+    con.commit()
+
+    return redirect(
+        url_for('question_detail', question_id=question_id
+        )
+    ) 
+@app.route('/answer/<int:answer_id>/vote/<vote>', methods=['POST'])
+@login_required
+def vote_answer(answer_id, vote):
+
+    vote = int(vote)
+
+    if vote not in [1, -1]:
+        return redirect(url_for('dashboard',))
+
+    con = db.get_db_con()
+
+    answer = con.execute('SELECT * FROM answer WHERE id = ?',
+        (answer_id,)
+    ).fetchone()
+
+    if answer is None:
+        return redirect(url_for('dashboard'))
+
+
+    change_vote(
+        'answer_vote',
+        'answer_id',
+        answer_id,
+        vote
+    )
+
+    update_answer_votes(answer_id)
+
+    con.commit()
+
+    return redirect(
+        url_for(
+            'question_detail',
+            question_id=answer['question_id']
+        )
+    )
+@app.route('/answer/<int:answer_id>/solution', methods=['POST'])
+@login_required
+def solution(answer_id):
+
+    con = db.get_db_con()
+
+    answer = con.execute('SELECT question_id FROM answer WHERE id = ?',
+        (answer_id,)
+    ).fetchone()
+
+    if answer is None:
+        return redirect(url_for('dashboard'))
+
+    question = con.execute('SELECT user_id FROM question WHERE id = ?',
+        (answer['question_id'],)
+    ).fetchone()
+
+    if question['user_id'] != session['user_id']:
+        return redirect(
+            url_for('question_detail', question_id=answer['question_id']
+            )
+        )
+    con.execute('UPDATE answer SET is_solution = 0 WHERE question_id = ?', (answer['question_id'],))
+    con.execute('UPDATE answer SET is_solution = 1 WHERE id = ?', (answer_id,))
+
+    con.commit()
+    return redirect(
+        url_for('question_detail', question_id=answer['question_id']
+        )
     )
 
 def hwr_email(email):

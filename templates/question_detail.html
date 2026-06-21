@@ -45,13 +45,49 @@ href="{{ url_for('dashboard') }}">
 
         </div>
 
+        <div class="d-flex justify-content-between align-items-center">
 
 
         <small class="text-muted">
             von {{ question.username }}
         </small>
+                <div class="d-flex gap-2">
 
+                {% if session.user_id %}
 
+                    <form method="post"
+                    action="{{ url_for('vote_question', question_id=question.id, vote=1) }}">
+
+                        <button class="btn btn-sm {{ 'btn-success' if question_vote == 1 else 'btn-outline-success' }}">
+                            Hoch {{ question.upvotes }}
+                        </button>
+
+                    </form>
+
+                    <form method="post"
+                    action="{{ url_for('vote_question', question_id=question.id, vote=-1) }}">
+
+                        <button class="btn btn-sm {{ 'btn-danger' if question_vote == -1 else 'btn-outline-danger' }}">
+                            Runter {{ question.downvotes }}
+                        </button>
+
+                    </form>
+
+                {% else %}
+
+                    <span class="badge text-bg-light">
+                        Hoch {{ question.upvotes }}
+                    </span>
+
+                    <span class="badge text-bg-light">
+                        Runter {{ question.downvotes }}
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
 
     </div>
 
@@ -66,20 +102,81 @@ href="{{ url_for('dashboard') }}">
 
 {% for answer in answers %}
 
-
-<div class="card mb-3">
+<div class="card mb-3 {{ 'border-success' if answer.is_solution else '' }}">
 
     <div class="card-body">
+
+            {% if answer.is_solution %}
+
+            <div class="alert alert-success py-2">
+                Beste Antwort
+            </div>
+
+        {% endif %}
+
 
 
         <p>
             {{ answer.content }}
         </p>
-
+        
+        <div class="d-flex justify-content-between align-items-center">
 
         <small class="text-muted">
             von {{ answer.username }}
         </small>
+
+                <div class="d-flex gap-2">
+
+                {% if session.user_id %}
+
+                    <form method="post"
+                    action="{{ url_for('vote_answer', answer_id=answer.id, vote=1) }}">
+
+                        <button class="btn btn-sm {{ 'btn-success' if answer_votes.get(answer.id) == 1 else 'btn-outline-success' }}">
+                            Hoch {{ answer.upvotes }}
+                        </button>
+
+                    </form>
+
+                    <form method="post"
+                    action="{{ url_for('vote_answer', answer_id=answer.id, vote=-1) }}">
+
+                        <button class="btn btn-sm {{ 'btn-danger' if answer_votes.get(answer.id) == -1 else 'btn-outline-danger' }}">
+                            Runter {{ answer.downvotes }}
+                        </button>
+
+                    </form>
+
+                {% else %}
+
+                    <span class="badge text-bg-light">
+                        Hoch {{ answer.upvotes }}
+                    </span>
+
+                    <span class="badge text-bg-light">
+                        Runter {{ answer.downvotes }}
+                    </span>
+
+                {% endif %}
+
+
+                {% if session.user_id == question.user_id and not answer.is_solution %}
+
+                    <form method="post"
+                    action="{{ url_for('solution', answer_id=answer.id) }}">
+
+                        <button class="btn btn-sm btn-outline-success">
+                            Lösung
+                        </button>
+
+                    </form>
+
+                {% endif %}
+
+            </div>
+
+        </div>
 
 
     </div>
