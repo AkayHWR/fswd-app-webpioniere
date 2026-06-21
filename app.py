@@ -510,3 +510,15 @@ def api_questions():
     con = db.get_db_con()
     questions = con.execute('SELECT * FROM question ORDER BY id DESC').fetchall()
     return jsonify([dict(question) for question in questions])
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    
+    return render_template('500.html'), 500
