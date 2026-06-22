@@ -44,14 +44,15 @@ Mir ist weiterhin bewusst, dass ich, sofern ich zur Erstellung dieser Arbeit KI-
 
 | \# | My contribution | Why I am proud of it | Which challenge I overcame |
 | :-- | :-- | :-- | :-- |
-| 1 | [Describe your individual contribution] |  |  |
-| 2 |  |  |  |
-| 3 |  |  |  |
+| 1 | Implementierung der Detailansicht für Fragen mit Antworten, Voting-System und Markierung der besten Antwort.|Die Detailansicht verbindet mehrere zentrale Funktionen der Anwendung: Nutzer können Fragen ansehen, Antworten erstellen, abstimmen und Lösungen markieren.|Die Herausforderung war, die verschiedenen Datenbankbeziehungen (Fragen, Antworten, Votes und User) korrekt mit Flask-Routen und Jinja-Templates zu verbinden.|
+| 2 |Umsetzung der Antwort-Funktion inklusive Erstellung neuer Antworten, Anzeige von Antworten und Integration der Lösungsmarkierung.|Dadurch wurde die Anwendung von einer reinen Fragenübersicht zu einer interaktiven Plattform erweitert.|Besonders anspruchsvoll war die Verbindung zwischen Formularen, Datenbankoperationen und der Darstellung im Template.|
+| 3 |Erstellung und Integration der question_detail.html in das bestehende Template-System.|Die Detailseite bietet eine konsistente Benutzeroberfläche und erweitert die vorhandene App um einen vollständigen Frage-Antwort-Workflow.|Die Herausforderung war, die neue Detailansicht in die vorhandene Struktur mit base.html, Jinja-Templates und Bootstrap-Komponenten einzubauen.|
 
 ## Design Decisions that I led
 
-1. [DD #00](../design-decisions/dd-00.md)
-2. [DD #01](../design-decisions/dd-01.md)
+1. [DD #05](../design-decisions/dd-05.md)
+2. [DD #06](../design-decisions/dd-06.md)
+3. [DD #09](../design-decisions/dd-09.md)
 
 ---
 
@@ -59,10 +60,10 @@ Mir ist weiterhin bewusst, dass ich, sofern ich zur Erstellung dieser Arbeit KI-
 
 | Contribution | Proof, e.g., git commits | Sources used |
 | :-- | :-- | :-- |
-| [Design Challenge research] | [Research traces](../product-discovery/01-design-challenge.md#raw-materia) | See left |
-| [Refactor to use Flask Blueprints] | [Commit 1](https://github.com/hwrberlin/fswd/commit/d816e4), [Commit 2](https://github.com/hwrberlin/fswd/commit/75a6c1) | [Flask Documentation](https://flask.palletsprojects.com/en/stable/blueprints/#the-concept-of-blueprints) |
-|  |  |  |
-|  |  |  |
+|Question Detail View mit Antworten und Template-Anbindung| [feat: add question detail page](https://github.com/AkayHWR/fswd-app-webpioniere/commit/127bf32), [feat: initialize question detail route and basic template inheritance](https://github.com/AkayHWR/fswd-app-webpioniere/commit/bce5e53)|Keine externen Quellen außer fswd-home und ChatGPT|
+|Antwort-Erstellung in der Detailansicht|[feat: add answer creation to question detail view](https://github.com/AkayHWR/fswd-app-webpioniere/commit/2d6e832)|Keine externen Quellen außer fswd-home und ChatGPT|
+|Voting-System für Fragen und Antworten|[Feat: add voting tables to database](https://github.com/AkayHWR/fswd-app-webpioniere/commit/f2ddad9), [feat: finalize question_detail.html, vote tables, sample votes, voting, and mark as solve](https://github.com/AkayHWR/fswd-app-webpioniere/commit/b0945a5)|Keine externen Quellen außer fswd-home und ChatGPT |
+|Markierung einer Antwort als Lösung|[feat: finalize question_detail.html, vote tables, sample votes, voting, and mark as solve](https://github.com/AkayHWR/fswd-app-webpioniere/commit/b0945a5)|Keine externen Quellen außer fswd-home und ChatGPT |
 |  |  |  |
 
 ---
@@ -73,6 +74,6 @@ Mir ist weiterhin bewusst, dass ich, sofern ich zur Erstellung dieser Arbeit KI-
 
 | #   | AI Tool | Purpose of Use | Affected Sections (Code + Docs) | Remarks, Procedure, Prompts |
 | :-- | :--     | :--            | :--                             | :--                         |
-| 01  |         |                |                                 |                             |
-| 02  |         |                |                                 |                             |
-| ... |         |                |                                 |                             |
+|01|ChatGPT|Unterstützung bei Strukturierung der question_detail.html| templates/question_detail.html| Nach Vorschlägen für Aufbau mit Bootstrap Cards, Buttons und Jinja-Schleifen gefragt und anschließend angepasst|
+|02|ChatGPT|Unterstützung bei Flask-Routen und Datenbanklogik für Antworten und Votes|app.py|Unterstützung beim Finden von Fehlern bei Datenbankabfragen und Vote-Handling|
+|03|ChatGPT|Die Herausforderung war, die neue Detailansicht in die vorhandene Struktur mit base.html, Jinja-Templates und Bootstrap-Komponenten einzubauen.| docs|Hilfe bei der Formulierungen, Inhalte selbst geprüft und angepasst.|
