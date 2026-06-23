@@ -6,11 +6,11 @@ nav_order: 0
 
 # Webpioniere
 
-[Include a short project description. Below, include a representative, attractive screenshot of your final web app.]
+**StudySwap** ist eine Web-App für Studierende der HWR Berlin, auf der sie Fragen rund um das Studium stellen, persönliche Erfahrungen austauschen und hilfreiche Antworten bewerten können
 
 ## Sample App Screen
 
-![attractive app screenshot](assets/images/fswd-intro_00.png)
+![attractive app screenshot](assets/images_happyPath/Dashboard.png)
 
 ---
 
