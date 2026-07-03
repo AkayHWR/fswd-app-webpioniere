@@ -387,7 +387,7 @@ def login():
         return render_template('login.html')
 
     else:  # POST request method
-        email = request.form['email'].strip()
+        email = request.form['email'].strip().lower() 
         password = request.form['password'].strip()
 
         con = db.get_db_con()
