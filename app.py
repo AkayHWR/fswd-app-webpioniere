@@ -330,7 +330,7 @@ def register():
         password = request.form['password'].strip()
         confirm_password = request.form['confirm_password'].strip()
 
-        if not first_name or not last_name or not email or not password:
+        if not first_name or not last_name or not email or not password or not confirm_password:
             return render_template(
                 'register.html',
                 error='Bitte fülle alle Felder aus.'
