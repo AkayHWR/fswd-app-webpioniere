@@ -42,7 +42,7 @@ Die Anmeldung ist nur mit einer gültigen Studentenmail möglich, damit ausschli
 
 Nutzer können Fragen erstellen, bestehende Beiträge durchsuchen und Kommentare schreiben. Kommentare können mit Upvotes und Downvotes bewertet werden, damit hilfreiche Antworten schneller sichtbar werden.
 
-Der Ersteller einer Frage kann einen Kommentar als Lösung markieren. Zusätzlich gibt es vorgefertigte Kategorien wie Vertiefungen, Dozenten, Klausuren oder Bachelorarbeit, damit Inhalte übersichtlich organisiert werden.
+Der Ersteller einer Frage kann einen Kommentar als Lösung markieren. Zusätzlich gibt es Filter wie Vertiefungen, Dozenten, Klausuren oder Bachelorarbeit, damit Inhalte übersichtlich organisiert werden, welche beim Fragen-Erstellen durch Hashtags gesetzt werden können und im Dashboard angezeigt werden.
 
 Ein Leaderboard zeigt besonders aktive und hilfreiche Nutzer der Plattform an.
 
