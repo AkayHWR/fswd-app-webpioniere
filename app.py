@@ -471,19 +471,25 @@ def dashboard():
     con = db.get_db_con()
     search = request.args.get('q', '').strip()
     selected_tags = request.args.getlist('tag')
-
+    user_id = session.get('user_id', 0)
 
     questions = con.execute(
         '''
-        SELECT q.*, u.first_name || ' ' || u.last_name AS username, COUNT(a.id) AS answer_count
+        SELECT
+            q.*,
+            u.first_name || ' ' || u.last_name AS username,
+            COUNT(a.id) AS answer_count,
+            CASE WHEN sq.id IS NULL THEN 0 ELSE 1 END AS is_saved
         FROM question q
         JOIN user u ON q.user_id = u.id
         LEFT JOIN answer a ON a.question_id = q.id
+        LEFT JOIN saved_question sq
+            ON sq.question_id = q.id AND sq.user_id = ?
         WHERE q.title LIKE ? OR q.description LIKE ?
-        GROUP BY q.id
+        GROUP BY q.id, sq.id
         ORDER BY q.id DESC
         ''',
-        (f'%{search}%', f'%{search}%')
+        (user_id, f'%{search}%', f'%{search}%')
     ).fetchall()
 
     if selected_tags:
@@ -502,7 +508,8 @@ def dashboard():
         search=search,
         selected_tags=selected_tags,
         top_tags=top_tags,
-        other_tags=other_tags
+        other_tags=other_tags,
+        return_to=request.full_path.rstrip('?')
     )
 
 @app.route('/api/questions')
