@@ -548,3 +548,39 @@ def profile():
         user=user,
         own_questions=own_questions
     )
+
+def redirect_to_next(default_endpoint='dashboard', **values):
+    next_url = request.form.get('next', '').strip()
+    if next_url.startswith('/') and not next_url.startswith('//'):
+        return redirect(next_url)
+    return redirect(url_for(default_endpoint, **values))
+
+
+@app.route('/question/<int:question_id>/save', methods=['POST'])
+@login_required
+def save_question(question_id):
+    con = db.get_db_con()
+    question = con.execute(
+        'SELECT id FROM question WHERE id = ?',
+        (question_id,)
+    ).fetchone()
+    if question is None:
+        return redirect_to_next('dashboard')
+
+    saved = con.execute(
+        'SELECT id FROM saved_question WHERE user_id = ? AND question_id = ?',
+        (session['user_id'], question_id)
+    ).fetchone()
+    if saved is None:
+        con.execute(
+            'INSERT OR IGNORE INTO saved_question (user_id, question_id) VALUES (?, ?)',
+            (session['user_id'], question_id)
+        )
+    else:
+        con.execute(
+            'DELETE FROM saved_question WHERE user_id = ? AND question_id = ?',
+            (session['user_id'], question_id)
+        )
+
+    con.commit()
+    return redirect_to_next('dashboard')
