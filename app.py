@@ -522,3 +522,29 @@ def page_not_found(e):
 def internal_server_error(e):
     
     return render_template('500.html'), 500
+
+@app.route('/profile')
+@login_required
+def profile():
+    con = db.get_db_con()
+    user = con.execute(
+        'SELECT * FROM user WHERE id = ?',
+        (session['user_id'],)
+    ).fetchone()
+    own_questions = con.execute(
+        '''
+        SELECT q.*, COUNT(a.id) AS answer_count
+        FROM question q
+        LEFT JOIN answer a ON a.question_id = q.id
+        WHERE q.user_id = ?
+        GROUP BY q.id
+        ORDER BY q.id DESC
+        ''',
+        (session['user_id'],)
+    ).fetchall()
+
+    return render_template(
+        'profile.html',
+        user=user,
+        own_questions=own_questions
+    )
