@@ -98,3 +98,33 @@ tbody tr:hover {
     border-color: #badbcc;
     color: #0a3622;
 }
+
+.question-card {
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.question-title-link {
+    color: #212529;
+    text-decoration: none;
+}
+
+.question-title-link:hover {
+    color: #212529;
+}
+
+.question-card-main {
+    min-width: 0;
+}
+
+.question-card-meta {
+    min-width: 150px;
+}
+
+.question-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    position: relative;
+    z-index: 2;
+}

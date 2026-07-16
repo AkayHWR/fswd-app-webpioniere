@@ -531,6 +531,23 @@ def profile():
         'SELECT * FROM user WHERE id = ?',
         (session['user_id'],)
     ).fetchone()
+    saved_questions = con.execute(
+        '''
+        SELECT
+            q.*,
+            sq.created_at AS saved_at,
+            u.first_name || ' ' || u.last_name AS username,
+            COUNT(a.id) AS answer_count
+        FROM saved_question sq
+        JOIN question q ON q.id = sq.question_id
+        JOIN user u ON u.id = q.user_id
+        LEFT JOIN answer a ON a.question_id = q.id
+        WHERE sq.user_id = ?
+        GROUP BY q.id, sq.created_at
+        ORDER BY sq.created_at DESC
+        ''',
+        (session['user_id'],)
+    ).fetchall()
     own_questions = con.execute(
         '''
         SELECT q.*, COUNT(a.id) AS answer_count
@@ -546,7 +563,9 @@ def profile():
     return render_template(
         'profile.html',
         user=user,
-        own_questions=own_questions
+        saved_questions=saved_questions,
+        own_questions=own_questions,
+        return_to=url_for('profile')
     )
 
 def redirect_to_next(default_endpoint='dashboard', **values):
