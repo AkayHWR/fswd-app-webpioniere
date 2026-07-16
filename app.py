@@ -143,83 +143,84 @@ def change_vote(table, item_column, item_id, vote):
 
 @app.route('/question/<int:question_id>', methods=['GET', 'POST'])
 def question_detail(question_id):
-
     con = db.get_db_con()
+    back_url = request.args.get('next', '').strip()
+    if not back_url.startswith('/') or back_url.startswith('//'):
+        back_url = url_for('dashboard')
 
-    question = con.execute( 
-    '''
-    SELECT q.*, u.first_name || ' ' || u.last_name AS username
-    FROM question q
-    JOIN user u ON q.user_id = u.id
-    WHERE q.id = ?
-    ''', (question_id,)
+    question = con.execute(
+        '''
+        SELECT q.*, u.first_name || ' ' || u.last_name AS username
+        FROM question q
+        JOIN user u ON q.user_id = u.id
+        WHERE q.id = ?
+        ''',
+        (question_id,)
     ).fetchone()
-
     if question is None:
         return redirect(url_for('dashboard'))
 
     if request.method == 'POST':
-
         if 'user_id' not in session:
             return redirect(url_for('login'))
 
-
         content = request.form['content'].strip()
-
         if content != '':
-
-            con.execute('INSERT INTO answer(question_id, user_id, content)VALUES (?, ?, ?)',
-                    (question_id,session['user_id'],content)
-                )
-
+            con.execute(
+                'INSERT INTO answer (question_id, user_id, content) VALUES (?, ?, ?)',
+                (question_id, session['user_id'], content)
+            )
             con.commit()
-
-        return redirect(
-            url_for('question_detail',question_id=question_id)
-        )
+        return redirect(url_for('question_detail', question_id=question_id))
 
     answers = con.execute(
-    '''
-    SELECT a.*, u.first_name || ' ' || u.last_name AS username
-    FROM answer a
-    JOIN user u ON a.user_id = u.id
-    WHERE a.question_id = ?
-    ORDER BY a.is_solution DESC, a.upvotes - a.downvotes DESC, a.id DESC
-    ''',(question_id,)
+        '''
+        SELECT a.*, u.first_name || ' ' || u.last_name AS username
+        FROM answer a
+        JOIN user u ON a.user_id = u.id
+        WHERE a.question_id = ?
+        ORDER BY a.is_solution DESC, a.upvotes - a.downvotes DESC, a.id DESC
+        ''',
+        (question_id,)
     ).fetchall()
 
     answer_votes = {}
     question_vote = None
-
-
+    is_saved = False
     if 'user_id' in session:
-
-        answer_vote_rows = con.execute('SELECT answer_id, vote FROM answer_vote WHERE user_id = ? AND answer_id IN ( SELECT id FROM answer WHERE question_id = ?)',
+        answer_vote_rows = con.execute(
+            '''
+            SELECT answer_id, vote
+            FROM answer_vote
+            WHERE user_id = ? AND answer_id IN (
+                SELECT id FROM answer WHERE question_id = ?
+            )
+            ''',
             (session['user_id'], question_id)
         ).fetchall()
+        answer_votes = {row['answer_id']: row['vote'] for row in answer_vote_rows}
 
-
-        answer_votes = {
-            row['answer_id']: row['vote']
-            for row in answer_vote_rows
-        }
-
-
-        question_vote = con.execute('SELECT vote FROM question_vote WHERE user_id = ? AND question_id = ?',
+        question_vote = con.execute(
+            'SELECT vote FROM question_vote WHERE user_id = ? AND question_id = ?',
             (session['user_id'], question_id)
         ).fetchone()
-
-
         if question_vote is not None:
             question_vote = question_vote['vote']
 
+        is_saved = con.execute(
+            'SELECT id FROM saved_question WHERE user_id = ? AND question_id = ?',
+            (session['user_id'], question_id)
+        ).fetchone() is not None
 
     return render_template(
         'question_detail.html',
         question=question,
         answers=answers,
         answer_votes=answer_votes,
-        question_vote=question_vote
+        question_vote=question_vote,
+        is_saved=is_saved,
+        back_url=back_url,
+        return_to=request.full_path.rstrip('?')
     )
     
 @app.route('/question/<int:question_id>/vote/<vote>', methods=['POST'])
