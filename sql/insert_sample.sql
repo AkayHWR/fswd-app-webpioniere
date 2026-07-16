@@ -23,6 +23,12 @@ INSERT INTO answer (question_id, user_id, content, is_solution, upvotes, downvot
 (3, 2, 'Ich habe meine Bachelorarbeit im Unternehmen geschrieben. Planung ist wichtig.', 1, 2, 0),
 (4, 1, 'Projektmanagement war fair und gut organisiert.', 0, 0, 0);
 
+INSERT INTO saved_question (user_id, question_id) VALUES
+(1, 2),
+(1, 3),
+(2, 1),
+(3, 7);
+
 INSERT INTO question_vote (question_id, user_id, vote) VALUES
 (1, 2, 1),
 (1, 3, 1),

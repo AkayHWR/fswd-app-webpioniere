@@ -143,83 +143,84 @@ def change_vote(table, item_column, item_id, vote):
 
 @app.route('/question/<int:question_id>', methods=['GET', 'POST'])
 def question_detail(question_id):
-
     con = db.get_db_con()
+    back_url = request.args.get('next', '').strip()
+    if not back_url.startswith('/') or back_url.startswith('//'):
+        back_url = url_for('dashboard')
 
-    question = con.execute( 
-    '''
-    SELECT q.*, u.first_name || ' ' || u.last_name AS username
-    FROM question q
-    JOIN user u ON q.user_id = u.id
-    WHERE q.id = ?
-    ''', (question_id,)
+    question = con.execute(
+        '''
+        SELECT q.*, u.first_name || ' ' || u.last_name AS username
+        FROM question q
+        JOIN user u ON q.user_id = u.id
+        WHERE q.id = ?
+        ''',
+        (question_id,)
     ).fetchone()
-
     if question is None:
         return redirect(url_for('dashboard'))
 
     if request.method == 'POST':
-
         if 'user_id' not in session:
             return redirect(url_for('login'))
 
-
         content = request.form['content'].strip()
-
         if content != '':
-
-            con.execute('INSERT INTO answer(question_id, user_id, content)VALUES (?, ?, ?)',
-                    (question_id,session['user_id'],content)
-                )
-
+            con.execute(
+                'INSERT INTO answer (question_id, user_id, content) VALUES (?, ?, ?)',
+                (question_id, session['user_id'], content)
+            )
             con.commit()
-
-        return redirect(
-            url_for('question_detail',question_id=question_id)
-        )
+        return redirect(url_for('question_detail', question_id=question_id))
 
     answers = con.execute(
-    '''
-    SELECT a.*, u.first_name || ' ' || u.last_name AS username
-    FROM answer a
-    JOIN user u ON a.user_id = u.id
-    WHERE a.question_id = ?
-    ORDER BY a.is_solution DESC, a.upvotes - a.downvotes DESC, a.id DESC
-    ''',(question_id,)
+        '''
+        SELECT a.*, u.first_name || ' ' || u.last_name AS username
+        FROM answer a
+        JOIN user u ON a.user_id = u.id
+        WHERE a.question_id = ?
+        ORDER BY a.is_solution DESC, a.upvotes - a.downvotes DESC, a.id DESC
+        ''',
+        (question_id,)
     ).fetchall()
 
     answer_votes = {}
     question_vote = None
-
-
+    is_saved = False
     if 'user_id' in session:
-
-        answer_vote_rows = con.execute('SELECT answer_id, vote FROM answer_vote WHERE user_id = ? AND answer_id IN ( SELECT id FROM answer WHERE question_id = ?)',
+        answer_vote_rows = con.execute(
+            '''
+            SELECT answer_id, vote
+            FROM answer_vote
+            WHERE user_id = ? AND answer_id IN (
+                SELECT id FROM answer WHERE question_id = ?
+            )
+            ''',
             (session['user_id'], question_id)
         ).fetchall()
+        answer_votes = {row['answer_id']: row['vote'] for row in answer_vote_rows}
 
-
-        answer_votes = {
-            row['answer_id']: row['vote']
-            for row in answer_vote_rows
-        }
-
-
-        question_vote = con.execute('SELECT vote FROM question_vote WHERE user_id = ? AND question_id = ?',
+        question_vote = con.execute(
+            'SELECT vote FROM question_vote WHERE user_id = ? AND question_id = ?',
             (session['user_id'], question_id)
         ).fetchone()
-
-
         if question_vote is not None:
             question_vote = question_vote['vote']
 
+        is_saved = con.execute(
+            'SELECT id FROM saved_question WHERE user_id = ? AND question_id = ?',
+            (session['user_id'], question_id)
+        ).fetchone() is not None
 
     return render_template(
         'question_detail.html',
         question=question,
         answers=answers,
         answer_votes=answer_votes,
-        question_vote=question_vote
+        question_vote=question_vote,
+        is_saved=is_saved,
+        back_url=back_url,
+        return_to=request.full_path.rstrip('?')
     )
     
 @app.route('/question/<int:question_id>/vote/<vote>', methods=['POST'])
@@ -471,19 +472,25 @@ def dashboard():
     con = db.get_db_con()
     search = request.args.get('q', '').strip()
     selected_tags = request.args.getlist('tag')
-
+    user_id = session.get('user_id', 0)
 
     questions = con.execute(
         '''
-        SELECT q.*, u.first_name || ' ' || u.last_name AS username, COUNT(a.id) AS answer_count
+        SELECT
+            q.*,
+            u.first_name || ' ' || u.last_name AS username,
+            COUNT(a.id) AS answer_count,
+            CASE WHEN sq.id IS NULL THEN 0 ELSE 1 END AS is_saved
         FROM question q
         JOIN user u ON q.user_id = u.id
         LEFT JOIN answer a ON a.question_id = q.id
+        LEFT JOIN saved_question sq
+            ON sq.question_id = q.id AND sq.user_id = ?
         WHERE q.title LIKE ? OR q.description LIKE ?
-        GROUP BY q.id
+        GROUP BY q.id, sq.id
         ORDER BY q.id DESC
         ''',
-        (f'%{search}%', f'%{search}%')
+        (user_id, f'%{search}%', f'%{search}%')
     ).fetchall()
 
     if selected_tags:
@@ -502,7 +509,8 @@ def dashboard():
         search=search,
         selected_tags=selected_tags,
         top_tags=top_tags,
-        other_tags=other_tags
+        other_tags=other_tags,
+        return_to=request.full_path.rstrip('?')
     )
 
 @app.route('/api/questions')
@@ -522,3 +530,84 @@ def page_not_found(e):
 def internal_server_error(e):
     
     return render_template('500.html'), 500
+
+@app.route('/profile')
+@login_required
+def profile():
+    con = db.get_db_con()
+    user = con.execute(
+        'SELECT * FROM user WHERE id = ?',
+        (session['user_id'],)
+    ).fetchone()
+    saved_questions = con.execute(
+        '''
+        SELECT
+            q.*,
+            sq.created_at AS saved_at,
+            u.first_name || ' ' || u.last_name AS username,
+            COUNT(a.id) AS answer_count
+        FROM saved_question sq
+        JOIN question q ON q.id = sq.question_id
+        JOIN user u ON u.id = q.user_id
+        LEFT JOIN answer a ON a.question_id = q.id
+        WHERE sq.user_id = ?
+        GROUP BY q.id, sq.created_at
+        ORDER BY sq.created_at DESC
+        ''',
+        (session['user_id'],)
+    ).fetchall()
+    own_questions = con.execute(
+        '''
+        SELECT q.*, COUNT(a.id) AS answer_count
+        FROM question q
+        LEFT JOIN answer a ON a.question_id = q.id
+        WHERE q.user_id = ?
+        GROUP BY q.id
+        ORDER BY q.id DESC
+        ''',
+        (session['user_id'],)
+    ).fetchall()
+
+    return render_template(
+        'profile.html',
+        user=user,
+        saved_questions=saved_questions,
+        own_questions=own_questions,
+        return_to=url_for('profile')
+    )
+
+def redirect_to_next(default_endpoint='dashboard', **values):
+    next_url = request.form.get('next', '').strip()
+    if next_url.startswith('/') and not next_url.startswith('//'):
+        return redirect(next_url)
+    return redirect(url_for(default_endpoint, **values))
+
+
+@app.route('/question/<int:question_id>/save', methods=['POST'])
+@login_required
+def save_question(question_id):
+    con = db.get_db_con()
+    question = con.execute(
+        'SELECT id FROM question WHERE id = ?',
+        (question_id,)
+    ).fetchone()
+    if question is None:
+        return redirect_to_next('dashboard')
+
+    saved = con.execute(
+        'SELECT id FROM saved_question WHERE user_id = ? AND question_id = ?',
+        (session['user_id'], question_id)
+    ).fetchone()
+    if saved is None:
+        con.execute(
+            'INSERT OR IGNORE INTO saved_question (user_id, question_id) VALUES (?, ?)',
+            (session['user_id'], question_id)
+        )
+    else:
+        con.execute(
+            'DELETE FROM saved_question WHERE user_id = ? AND question_id = ?',
+            (session['user_id'], question_id)
+        )
+
+    con.commit()
+    return redirect_to_next('dashboard')

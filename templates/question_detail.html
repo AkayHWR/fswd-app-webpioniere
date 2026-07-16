@@ -1,251 +1,105 @@
 {% extends "base.html" %}
 
-
-{% block title %}
-{{ question.title }}
-{% endblock %}
-
-
+{% block title %}{{ question.title }}{% endblock %}
 
 {% block content %}
-
-
-<a class="btn btn-outline-secondary btn-sm mb-3" 
-href="{{ url_for('dashboard') }}">
-    Zurück
-</a>
-
-
+<a class="btn btn-outline-secondary btn-sm mb-3" href="{{ back_url }}">Zurück</a>
 
 <div class="card mb-4">
-
     <div class="card-body">
-
-
-        <h1 class="card-title h3">
-            {{ question.title }}
-        </h1>
-
-
-        <p class="card-text">
-            {{ question.description }}
-        </p>
-
-
+        <h1>{{ question.title }}</h1>
+        <p>{{ question.description }}</p>
 
         <div class="mb-3">
-
             {% for tag in question.hashtags.split() %}
-
-                <span class="badge text-bg-light">
-                    {{ tag }}
-                </span>
-
+                <span class="badge text-bg-light">{{ tag }}</span>
             {% endfor %}
-
         </div>
 
+        {% if session.user_id %}
+            <form class="mb-3" method="post"
+                  action="{{ url_for('save_question', question_id=question.id) }}">
+                <input type="hidden" name="next" value="{{ return_to }}">
+                <button class="btn btn-sm {{ 'btn-danger' if is_saved else 'btn-outline-danger' }}">
+                    {{ 'Gespeichert' if is_saved else 'Speichern' }}
+                </button>
+            </form>
+        {% endif %}
+
         <div class="d-flex justify-content-between align-items-center">
-
-
-        <small class="text-muted">
-            von {{ question.username }}
-        </small>
-                <div class="d-flex gap-2">
-
+            <small class="text-muted">von {{ question.username }}</small>
+            <div class="d-flex gap-2">
                 {% if session.user_id %}
-
-                    <form method="post"
-                    action="{{ url_for('vote_question', question_id=question.id, vote=1) }}">
-
+                    <form method="post" action="{{ url_for('vote_question', question_id=question.id, vote=1) }}">
                         <button class="btn btn-sm {{ 'btn-success' if question_vote == 1 else 'btn-outline-success' }}">
                             Hoch {{ question.upvotes }}
                         </button>
-
                     </form>
-
-                    <form method="post"
-                    action="{{ url_for('vote_question', question_id=question.id, vote=-1) }}">
-
+                    <form method="post" action="{{ url_for('vote_question', question_id=question.id, vote=-1) }}">
                         <button class="btn btn-sm {{ 'btn-danger' if question_vote == -1 else 'btn-outline-danger' }}">
                             Runter {{ question.downvotes }}
                         </button>
-
                     </form>
-
                 {% else %}
-
-                    <span class="badge text-bg-light">
-                        Hoch {{ question.upvotes }}
-                    </span>
-
-                    <span class="badge text-bg-light">
-                        Runter {{ question.downvotes }}
-                    </span>
-
+                    <span class="badge text-bg-light">Hoch {{ question.upvotes }}</span>
+                    <span class="badge text-bg-light">Runter {{ question.downvotes }}</span>
                 {% endif %}
-
             </div>
-
         </div>
-
     </div>
-
 </div>
-
-
-
 
 <h2>Antworten</h2>
-
-
-
 {% for answer in answers %}
-
-<div class="card mb-3 {{ 'border-success' if answer.is_solution else '' }}">
-
-    <div class="card-body">
-
+    <div class="card mb-3 {{ 'border-success' if answer.is_solution else '' }}">
+        <div class="card-body">
             {% if answer.is_solution %}
-
-            <div class="alert alert-success py-2">
-                Beste Antwort
-            </div>
-
-        {% endif %}
-
-
-
-        <p>
-            {{ answer.content }}
-        </p>
-        
-        <div class="d-flex justify-content-between align-items-center">
-
-        <small class="text-muted">
-            von {{ answer.username }}
-        </small>
-
+                <div class="alert alert-success py-2">Beste Antwort</div>
+            {% endif %}
+            <p>{{ answer.content }}</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">von {{ answer.username }}</small>
                 <div class="d-flex gap-2">
+                    {% if session.user_id %}
+                        <form method="post" action="{{ url_for('vote_answer', answer_id=answer.id, vote=1) }}">
+                            <button class="btn btn-sm {{ 'btn-success' if answer_votes.get(answer.id) == 1 else 'btn-outline-success' }}">
+                                Hoch {{ answer.upvotes }}
+                            </button>
+                        </form>
+                        <form method="post" action="{{ url_for('vote_answer', answer_id=answer.id, vote=-1) }}">
+                            <button class="btn btn-sm {{ 'btn-danger' if answer_votes.get(answer.id) == -1 else 'btn-outline-danger' }}">
+                                Runter {{ answer.downvotes }}
+                            </button>
+                        </form>
+                    {% else %}
+                        <span class="badge text-bg-light">Hoch {{ answer.upvotes }}</span>
+                        <span class="badge text-bg-light">Runter {{ answer.downvotes }}</span>
+                    {% endif %}
 
-                {% if session.user_id %}
-
-                    <form method="post"
-                    action="{{ url_for('vote_answer', answer_id=answer.id, vote=1) }}">
-
-                        <button class="btn btn-sm {{ 'btn-success' if answer_votes.get(answer.id) == 1 else 'btn-outline-success' }}">
-                            Hoch {{ answer.upvotes }}
-                        </button>
-
-                    </form>
-
-                    <form method="post"
-                    action="{{ url_for('vote_answer', answer_id=answer.id, vote=-1) }}">
-
-                        <button class="btn btn-sm {{ 'btn-danger' if answer_votes.get(answer.id) == -1 else 'btn-outline-danger' }}">
-                            Runter {{ answer.downvotes }}
-                        </button>
-
-                    </form>
-
-                {% else %}
-
-                    <span class="badge text-bg-light">
-                        Hoch {{ answer.upvotes }}
-                    </span>
-
-                    <span class="badge text-bg-light">
-                        Runter {{ answer.downvotes }}
-                    </span>
-
-                {% endif %}
-
-
-                {% if session.user_id == question.user_id and not answer.is_solution %}
-
-                    <form method="post"
-                    action="{{ url_for('solution', answer_id=answer.id) }}">
-
-                        <button class="btn btn-sm btn-outline-success">
-                            Lösung
-                        </button>
-
-                    </form>
-
-                {% endif %}
-
+                    {% if session.user_id == question.user_id and not answer.is_solution %}
+                        <form method="post" action="{{ url_for('solution', answer_id=answer.id) }}">
+                            <button class="btn btn-sm btn-outline-success">Lösung</button>
+                        </form>
+                    {% endif %}
+                </div>
             </div>
-
         </div>
-
-
     </div>
-
-
-</div>
-
-
-
 {% else %}
-
-
-<div class="alert alert-info">
-    Noch keine Antworten.
-</div>
-
-
-
+    <div class="alert alert-info">Noch keine Antworten.</div>
 {% endfor %}
 
 <div class="card mt-4">
-
     <div class="card-body">
-
-
         {% if session.user_id %}
-
-
-            <h3>
-                Deine Antwort
-            </h3>
-
-
+            <h3>Deine Antwort</h3>
             <form method="post">
-
-
-                <textarea
-                    class="form-control mb-3"
-                    name="content"
-                    rows="5"
-                    required></textarea>
-
-
-                <button class="btn btn-danger">
-                    Antwort speichern
-                </button>
-
-
+                <textarea class="form-control mb-3" name="content" rows="5" required></textarea>
+                <button class="btn btn-danger">Antwort speichern</button>
             </form>
-
-
-
         {% else %}
-
-
-            <a class="btn btn-danger"
-               href="{{ url_for('login') }}">
-
-                Einloggen zum Antworten
-
-            </a>
-
-
+            <a class="btn btn-danger" href="{{ url_for('login') }}">Einloggen zum Antworten</a>
         {% endif %}
-
-
     </div>
-
 </div>
-
-
 {% endblock %}

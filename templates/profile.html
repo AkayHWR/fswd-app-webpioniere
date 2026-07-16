@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Profil{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h1>Profil</h1>
+        <p class="text-muted mb-0">{{ user.first_name }} {{ user.last_name }}</p>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ url_for('dashboard') }}">Zurück zum Dashboard</a>
+</div>
+
+<section class="mb-5">
+    <h2 class="h4 mb-3">Gespeicherte Fragen</h2>
+    {% if saved_questions %}
+        <div class="list-group">
+            {% for question in saved_questions %}
+                <div class="list-group-item question-card mb-2 shadow-sm position-relative">
+                    <div class="d-flex justify-content-between gap-3 question-card-layout">
+                        <div class="question-card-main">
+                            <h5>
+                                <a class="question-title-link stretched-link"
+                                   href="{{ url_for('question_detail', question_id=question.id, next=return_to) }}">
+                                    {{ question.title }}
+                                </a>
+                            </h5>
+                            <p class="text-muted mb-2">{{ question.description[:160] }}</p>
+                            <div>
+                                {% for tag in question.hashtags.split() %}
+                                    <span class="badge text-bg-light">{{ tag }}</span>
+                                {% endfor %}
+                            </div>
+                            <small class="text-muted">
+                                von {{ question.username }} · gespeichert am {{ question.saved_at[:16] }}
+                            </small>
+                        </div>
+                        <div class="text-end text-nowrap question-card-meta">
+                            <div>{{ question.answer_count }} Antworten</div>
+                            <small>{{ question.upvotes }} hoch / {{ question.downvotes }} runter</small>
+                            <div class="question-card-actions mt-2">
+                                <form method="post" action="{{ url_for('save_question', question_id=question.id) }}">
+                                    <input type="hidden" name="next" value="{{ return_to }}">
+                                    <button class="btn btn-sm btn-outline-secondary">Entfernen</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">Du hast noch keine Fragen gespeichert.</div>
+    {% endif %}
+</section>
+
+<section>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4 mb-0">Meine Fragen</h2>
+        <a class="btn btn-sm btn-danger" href="{{ url_for('create_question') }}">Neue Frage</a>
+    </div>
+
+    {% if own_questions %}
+        <div class="list-group">
+            {% for question in own_questions %}
+                <div class="list-group-item question-card mb-2 shadow-sm position-relative">
+                    <div class="d-flex justify-content-between gap-3 question-card-layout">
+                        <div class="question-card-main">
+                            <h5>
+                                <a class="question-title-link stretched-link"
+                                   href="{{ url_for('question_detail', question_id=question.id, next=return_to) }}">
+                                    {{ question.title }}
+                                </a>
+                            </h5>
+                            <p class="text-muted mb-2">{{ question.description[:160] }}</p>
+                            <div>
+                                {% for tag in question.hashtags.split() %}
+                                    <span class="badge text-bg-light">{{ tag }}</span>
+                                {% endfor %}
+                            </div>
+                            <small class="text-muted">erstellt am {{ question.created_at[:16] }}</small>
+                        </div>
+                        <div class="text-end text-nowrap question-card-meta">
+                            <div>{{ question.answer_count }} Antworten</div>
+                            <small>{{ question.upvotes }} hoch / {{ question.downvotes }} runter</small>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">Du hast noch keine eigenen Fragen erstellt.</div>
+    {% endif %}
+</section>
+{% endblock %}

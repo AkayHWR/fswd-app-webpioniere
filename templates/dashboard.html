@@ -69,24 +69,42 @@
 {% if questions %}
     <div class="list-group">
         {% for question in questions %}
-            <a class="list-group-item list-group-item-action mb-2 shadow-sm" href="{{ url_for('question_detail', question_id=question.id) }}">
-                <div class="d-flex justify-content-between gap-3">
-                    <div>
-                        <h5>{{ question.title }}</h5>
+            <div class="list-group-item question-card mb-2 shadow-sm position-relative">
+                <div class="d-flex justify-content-between gap-3 question-card-layout">
+                    <div class="question-card-main">
+                        <h5>
+                            <a class="question-title-link stretched-link"
+                               href="{{ url_for('question_detail', question_id=question.id, next=return_to) }}">
+                                {{ question.title }}
+                            </a>
+                        </h5>
                         <p class="text-muted mb-2">{{ question.description[:160] }}</p>
                         <div>
                             {% for tag in question.hashtags.split() %}
                                 <span class="badge text-bg-light">{{ tag }}</span>
                             {% endfor %}
                         </div>
-                        <small class="text-muted">von {{ question.username }}</small>
+                        <small class="text-muted">
+                            von {{ question.username }} · erstellt am {{ question.created_at[:16] }}
+                        </small>
                     </div>
-                    <div class="text-end text-nowrap">
+                    <div class="text-end text-nowrap question-card-meta">
                         <div>{{ question.answer_count }} Antworten</div>
                         <small>{{ question.upvotes }} hoch / {{ question.downvotes }} runter</small>
+
+                        {% if session.user_id %}
+                            <div class="question-card-actions mt-2">
+                                <form method="post" action="{{ url_for('save_question', question_id=question.id) }}">
+                                    <input type="hidden" name="next" value="{{ return_to }}">
+                                    <button class="btn btn-sm {{ 'btn-danger' if question.is_saved else 'btn-outline-danger' }}">
+                                        {{ 'Gespeichert' if question.is_saved else 'Speichern' }}
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
-            </a>
+            </div>
         {% endfor %}
     </div>
 {% else %}

@@ -25,11 +25,11 @@
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('leaderboard') }}">Leaderboard</a></li>
                     {% if session.user_id %}
-                        <li class="nav-item"><span class="nav-link">{{ session.username }}</span></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('profile') }}">{{ session.username }}</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
                     {% else %}
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}">Registrieren</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}">Registrieren</a></li>
                     {% endif %}
                     <li class="nav-item ms-lg-3">
                         <img class="hwr-logo" src="https://upload.wikimedia.org/wikipedia/de/9/90/Hochschule_f%C3%BCr_Wirtschaft_und_Recht_Berlin_logo.svg" alt="HWR logo">
