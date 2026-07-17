@@ -20,7 +20,9 @@ def hashtags_from_text(text):
 
 def all_hashtags():
     con = db.get_db_con()
-    rows = con.execute('SELECT hashtags FROM question').fetchall()
+    rows = con.execute(
+        'SELECT hashtags FROM question WHERE is_archived = 0'
+    ).fetchall()
     counts = {}
     for row in rows:
         for tag in hashtags_from_text(row['hashtags']):
@@ -483,10 +485,10 @@ def dashboard():
             CASE WHEN sq.id IS NULL THEN 0 ELSE 1 END AS is_saved
         FROM question q
         JOIN user u ON q.user_id = u.id
-        LEFT JOIN answer a ON a.question_id = q.id
+        LEFT JOIN answer a ON a.question_id = q.id AND a.is_archived = 0
         LEFT JOIN saved_question sq
             ON sq.question_id = q.id AND sq.user_id = ?
-        WHERE q.title LIKE ? OR q.description LIKE ?
+        WHERE q.is_archived = 0 AND (q.title LIKE ? OR q.description LIKE ?)
         GROUP BY q.id, sq.id
         ORDER BY q.id DESC
         ''',
