@@ -551,7 +551,7 @@ def profile():
         FROM saved_question sq
         JOIN question q ON q.id = sq.question_id
         JOIN user u ON u.id = q.user_id
-        LEFT JOIN answer a ON a.question_id = q.id
+        LEFT JOIN answer a ON a.question_id = q.id AND a.is_archived = 0
         WHERE sq.user_id = ?
         GROUP BY q.id, sq.created_at
         ORDER BY sq.created_at DESC
@@ -562,10 +562,10 @@ def profile():
         '''
         SELECT q.*, COUNT(a.id) AS answer_count
         FROM question q
-        LEFT JOIN answer a ON a.question_id = q.id
+        LEFT JOIN answer a ON a.question_id = q.id AND a.is_archived = 0
         WHERE q.user_id = ?
         GROUP BY q.id
-        ORDER BY q.id DESC
+        ORDER BY q.is_archived ASC, q.id DESC
         ''',
         (session['user_id'],)
     ).fetchall()

@@ -128,3 +128,8 @@ tbody tr:hover {
     position: relative;
     z-index: 2;
 }
+
+.archived-card {
+    background-color: #f1f3f5;
+    opacity: 0.92;
+}
