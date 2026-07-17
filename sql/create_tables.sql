@@ -14,9 +14,13 @@ CREATE TABLE question (
     hashtags TEXT NOT NULL,
     upvotes INTEGER DEFAULT 0,
     downvotes INTEGER DEFAULT 0,
+    is_archived INTEGER DEFAULT 0,
+    archived_at TEXT,
+    archived_by INTEGER,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE,
+    FOREIGN KEY (archived_by) REFERENCES user (id) ON DELETE SET NULL
 );
 
 CREATE TABLE answer (
@@ -27,10 +31,14 @@ CREATE TABLE answer (
     is_solution INTEGER DEFAULT 0,
     upvotes INTEGER DEFAULT 0,
     downvotes INTEGER DEFAULT 0,
+    is_archived INTEGER DEFAULT 0,
+    archived_at TEXT,
+    archived_by INTEGER,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (question_id) REFERENCES question (id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE,
+    FOREIGN KEY (archived_by) REFERENCES user (id) ON DELETE SET NULL
 );
 
 CREATE TABLE saved_question (
