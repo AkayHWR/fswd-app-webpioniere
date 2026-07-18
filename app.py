@@ -613,3 +613,58 @@ def save_question(question_id):
 
     con.commit()
     return redirect_to_next('dashboard')
+
+@app.route('/question/<int:question_id>/archive', methods=['POST'])
+@login_required
+def archive_question(question_id):
+    con = db.get_db_con()
+    question = con.execute(
+        'SELECT * FROM question WHERE id = ?',
+        (question_id,)
+    ).fetchone()
+
+    if question is None:
+        return redirect(url_for('dashboard'))
+    if question['user_id'] != session['user_id']:
+        if question['is_archived']:
+            return redirect(url_for('dashboard'))
+        return redirect(url_for('question_detail', question_id=question_id))
+
+    if question['is_archived']:
+        con.execute(
+            '''
+            UPDATE question
+            SET is_archived = 0, archived_at = NULL, archived_by = NULL
+            WHERE id = ?
+            ''',
+            (question_id,)
+        )
+        con.execute(
+            '''
+            UPDATE answer
+            SET is_archived = 0, archived_at = NULL, archived_by = NULL
+            WHERE question_id = ? AND archived_by = ?
+            ''',
+            (question_id, session['user_id'])
+        )
+        con.commit()
+        return redirect(url_for('question_detail', question_id=question_id))
+
+    con.execute(
+        '''
+        UPDATE question
+        SET is_archived = 1, archived_at = CURRENT_TIMESTAMP, archived_by = ?
+        WHERE id = ?
+        ''',
+        (session['user_id'], question_id)
+    )
+    con.execute(
+        '''
+        UPDATE answer
+        SET is_archived = 1, archived_at = CURRENT_TIMESTAMP, archived_by = ?
+        WHERE question_id = ? AND is_archived = 0
+        ''',
+        (session['user_id'], question_id)
+    )
+    con.commit()
+    return redirect(url_for('dashboard'))
