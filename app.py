@@ -20,7 +20,9 @@ def hashtags_from_text(text):
 
 def all_hashtags():
     con = db.get_db_con()
-    rows = con.execute('SELECT hashtags FROM question').fetchall()
+    rows = con.execute(
+        'SELECT hashtags FROM question WHERE is_archived = 0'
+    ).fetchall()
     counts = {}
     for row in rows:
         for tag in hashtags_from_text(row['hashtags']):
@@ -163,6 +165,8 @@ def question_detail(question_id):
     if request.method == 'POST':
         if 'user_id' not in session:
             return redirect(url_for('login'))
+        if question['is_archived']:
+            return redirect(url_for('question_detail', question_id=question_id))
 
         content = request.form['content'].strip()
         if content != '':
@@ -178,7 +182,7 @@ def question_detail(question_id):
         SELECT a.*, u.first_name || ' ' || u.last_name AS username
         FROM answer a
         JOIN user u ON a.user_id = u.id
-        WHERE a.question_id = ?
+        WHERE a.question_id = ? AND a.is_archived = 0
         ORDER BY a.is_solution DESC, a.upvotes - a.downvotes DESC, a.id DESC
         ''',
         (question_id,)
@@ -193,7 +197,7 @@ def question_detail(question_id):
             SELECT answer_id, vote
             FROM answer_vote
             WHERE user_id = ? AND answer_id IN (
-                SELECT id FROM answer WHERE question_id = ?
+                SELECT id FROM answer WHERE question_id = ? AND is_archived = 0
             )
             ''',
             (session['user_id'], question_id)
@@ -483,10 +487,10 @@ def dashboard():
             CASE WHEN sq.id IS NULL THEN 0 ELSE 1 END AS is_saved
         FROM question q
         JOIN user u ON q.user_id = u.id
-        LEFT JOIN answer a ON a.question_id = q.id
+        LEFT JOIN answer a ON a.question_id = q.id AND a.is_archived = 0
         LEFT JOIN saved_question sq
             ON sq.question_id = q.id AND sq.user_id = ?
-        WHERE q.title LIKE ? OR q.description LIKE ?
+        WHERE q.is_archived = 0 AND (q.title LIKE ? OR q.description LIKE ?)
         GROUP BY q.id, sq.id
         ORDER BY q.id DESC
         ''',
@@ -516,7 +520,7 @@ def dashboard():
 @app.route('/api/questions')
 def api_questions():
     con = db.get_db_con()
-    questions = con.execute('SELECT * FROM question ORDER BY id DESC').fetchall()
+    questions = con.execute('SELECT * FROM question WHERE is_archived = 0 ORDER BY id DESC').fetchall()
     return jsonify([dict(question) for question in questions])
 
 
@@ -549,7 +553,7 @@ def profile():
         FROM saved_question sq
         JOIN question q ON q.id = sq.question_id
         JOIN user u ON u.id = q.user_id
-        LEFT JOIN answer a ON a.question_id = q.id
+        LEFT JOIN answer a ON a.question_id = q.id AND a.is_archived = 0
         WHERE sq.user_id = ?
         GROUP BY q.id, sq.created_at
         ORDER BY sq.created_at DESC
@@ -560,10 +564,10 @@ def profile():
         '''
         SELECT q.*, COUNT(a.id) AS answer_count
         FROM question q
-        LEFT JOIN answer a ON a.question_id = q.id
+        LEFT JOIN answer a ON a.question_id = q.id AND a.is_archived = 0
         WHERE q.user_id = ?
         GROUP BY q.id
-        ORDER BY q.id DESC
+        ORDER BY q.is_archived ASC, q.id DESC
         ''',
         (session['user_id'],)
     ).fetchall()
@@ -588,7 +592,7 @@ def redirect_to_next(default_endpoint='dashboard', **values):
 def save_question(question_id):
     con = db.get_db_con()
     question = con.execute(
-        'SELECT id FROM question WHERE id = ?',
+        'SELECT id, is_archived FROM question WHERE id = ?',
         (question_id,)
     ).fetchone()
     if question is None:
@@ -598,16 +602,131 @@ def save_question(question_id):
         'SELECT id FROM saved_question WHERE user_id = ? AND question_id = ?',
         (session['user_id'], question_id)
     ).fetchone()
-    if saved is None:
-        con.execute(
-            'INSERT OR IGNORE INTO saved_question (user_id, question_id) VALUES (?, ?)',
-            (session['user_id'], question_id)
-        )
-    else:
+    if saved is not None:
         con.execute(
             'DELETE FROM saved_question WHERE user_id = ? AND question_id = ?',
+            (session['user_id'], question_id)
+        )
+    elif not question['is_archived']:
+        con.execute(
+            'INSERT OR IGNORE INTO saved_question (user_id, question_id) VALUES (?, ?)',
             (session['user_id'], question_id)
         )
 
     con.commit()
     return redirect_to_next('dashboard')
+
+@app.route('/question/<int:question_id>/archive', methods=['POST'])
+@login_required
+def archive_question(question_id):
+    con = db.get_db_con()
+    question = con.execute(
+        'SELECT * FROM question WHERE id = ?',
+        (question_id,)
+    ).fetchone()
+
+    if question is None:
+        return redirect(url_for('dashboard'))
+    if question['user_id'] != session['user_id']:
+        if question['is_archived']:
+            return redirect(url_for('dashboard'))
+        return redirect(url_for('question_detail', question_id=question_id))
+
+    if question['is_archived']:
+        con.execute(
+            '''
+            UPDATE question
+            SET is_archived = 0, archived_at = NULL, archived_by = NULL
+            WHERE id = ?
+            ''',
+            (question_id,)
+        )
+        con.execute(
+            '''
+            UPDATE answer
+            SET is_archived = 0, archived_at = NULL, archived_by = NULL
+            WHERE question_id = ? AND archived_by = ?
+            ''',
+            (question_id, session['user_id'])
+        )
+        con.commit()
+        return redirect(url_for('question_detail', question_id=question_id))
+
+    con.execute(
+        '''
+        UPDATE question
+        SET is_archived = 1, archived_at = CURRENT_TIMESTAMP, archived_by = ?
+        WHERE id = ?
+        ''',
+        (session['user_id'], question_id)
+    )
+    con.execute(
+        '''
+        UPDATE answer
+        SET is_archived = 1, archived_at = CURRENT_TIMESTAMP, archived_by = ?
+        WHERE question_id = ? AND is_archived = 0
+        ''',
+        (session['user_id'], question_id)
+    )
+    con.commit()
+    return redirect(url_for('dashboard'))
+
+@app.route('/answer/<int:answer_id>/delete', methods=['POST'])
+@login_required
+def delete_answer(answer_id):
+    con = db.get_db_con()
+    answer = con.execute(
+        '''
+        SELECT a.*, q.user_id AS question_owner_id, q.is_archived AS question_archived
+        FROM answer a
+        JOIN question q ON q.id = a.question_id
+        WHERE a.id = ?
+        ''',
+        (answer_id,)
+    ).fetchone()
+
+    if answer is None or answer['question_archived']:
+        return redirect(url_for('dashboard'))
+
+    may_archive = (
+        answer['user_id'] == session['user_id']
+        or answer['question_owner_id'] == session['user_id']
+    )
+    if not may_archive:
+        return redirect(url_for('question_detail', question_id=answer['question_id']))
+
+    con.execute(
+        '''
+        UPDATE answer
+        SET is_archived = 1, archived_at = CURRENT_TIMESTAMP, archived_by = ?
+        WHERE id = ?
+        ''',
+        (session['user_id'], answer_id)
+    )
+    con.commit()
+    return redirect(url_for('question_detail', question_id=answer['question_id']))
+
+@app.route('/question/<int:question_id>/delete', methods=['POST'])
+@login_required
+def delete_question(question_id):
+    con = db.get_db_con()
+    question = con.execute(
+        'SELECT * FROM question WHERE id = ?',
+        (question_id,)
+    ).fetchone()
+
+    if question is None:
+        return redirect(url_for('profile'))
+    if question['user_id'] != session['user_id'] or not question['is_archived']:
+        return redirect(url_for('question_detail', question_id=question_id))
+
+    con.execute(
+        'DELETE FROM answer_vote WHERE answer_id IN (SELECT id FROM answer WHERE question_id = ?)',
+        (question_id,)
+    )
+    con.execute('DELETE FROM question_vote WHERE question_id = ?', (question_id,))
+    con.execute('DELETE FROM saved_question WHERE question_id = ?', (question_id,))
+    con.execute('DELETE FROM answer WHERE question_id = ?', (question_id,))
+    con.execute('DELETE FROM question WHERE id = ?', (question_id,))
+    con.commit()
+    return redirect(url_for('profile'))

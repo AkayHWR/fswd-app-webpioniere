@@ -16,7 +16,7 @@
     {% if saved_questions %}
         <div class="list-group">
             {% for question in saved_questions %}
-                <div class="list-group-item question-card mb-2 shadow-sm position-relative">
+                <div class="list-group-item question-card {{ 'archived-card' if question.is_archived else '' }} mb-2 shadow-sm position-relative">
                     <div class="d-flex justify-content-between gap-3 question-card-layout">
                         <div class="question-card-main">
                             <h5>
@@ -25,19 +25,29 @@
                                     {{ question.title }}
                                 </a>
                             </h5>
-                            <p class="text-muted mb-2">{{ question.description[:160] }}</p>
-                            <div>
-                                {% for tag in question.hashtags.split() %}
-                                    <span class="badge text-bg-light">{{ tag }}</span>
-                                {% endfor %}
-                            </div>
+                            {% if question.is_archived %}
+                                <p class="text-muted mb-2">
+                                    Diese Frage wurde archiviert und ist nicht mehr in aktiven Diskussionen sichtbar.
+                                </p>
+                            {% else %}
+                                <p class="text-muted mb-2">{{ question.description[:160] }}</p>
+                                <div>
+                                    {% for tag in question.hashtags.split() %}
+                                        <span class="badge text-bg-light">{{ tag }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                             <small class="text-muted">
                                 von {{ question.username }} · gespeichert am {{ question.saved_at[:16] }}
                             </small>
                         </div>
                         <div class="text-end text-nowrap question-card-meta">
-                            <div>{{ question.answer_count }} Antworten</div>
-                            <small>{{ question.upvotes }} hoch / {{ question.downvotes }} runter</small>
+                            {% if question.is_archived %}
+                                <span class="badge text-bg-secondary">Archiviert</span>
+                            {% else %}
+                                <div>{{ question.answer_count }} Antworten</div>
+                                <small>{{ question.upvotes }} hoch / {{ question.downvotes }} runter</small>
+                            {% endif %}
                             <div class="question-card-actions mt-2">
                                 <form method="post" action="{{ url_for('save_question', question_id=question.id) }}">
                                     <input type="hidden" name="next" value="{{ return_to }}">
@@ -63,7 +73,7 @@
     {% if own_questions %}
         <div class="list-group">
             {% for question in own_questions %}
-                <div class="list-group-item question-card mb-2 shadow-sm position-relative">
+                <div class="list-group-item question-card {{ 'archived-card' if question.is_archived else '' }} mb-2 shadow-sm position-relative">
                     <div class="d-flex justify-content-between gap-3 question-card-layout">
                         <div class="question-card-main">
                             <h5>
@@ -72,7 +82,9 @@
                                     {{ question.title }}
                                 </a>
                             </h5>
-                            <p class="text-muted mb-2">{{ question.description[:160] }}</p>
+                            <p class="text-muted mb-2">
+                                {{ 'Diese Frage ist archiviert.' if question.is_archived else question.description[:160] }}
+                            </p>
                             <div>
                                 {% for tag in question.hashtags.split() %}
                                     <span class="badge text-bg-light">{{ tag }}</span>
@@ -81,11 +93,50 @@
                             <small class="text-muted">erstellt am {{ question.created_at[:16] }}</small>
                         </div>
                         <div class="text-end text-nowrap question-card-meta">
-                            <div>{{ question.answer_count }} Antworten</div>
-                            <small>{{ question.upvotes }} hoch / {{ question.downvotes }} runter</small>
+                            {% if question.is_archived %}
+                                <span class="badge text-bg-secondary">Archiviert</span>
+                                <div class="question-card-actions mt-2">
+                                    <button class="btn btn-sm btn-outline-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteQuestion{{ question.id }}">
+                                        Endgültig löschen
+                                    </button>
+                                </div>
+                            {% else %}
+                                <div>{{ question.answer_count }} Antworten</div>
+                                <small>{{ question.upvotes }} hoch / {{ question.downvotes }} runter</small>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
+
+                {% if question.is_archived %}
+                    <div class="modal fade"
+                         id="deleteQuestion{{ question.id }}"
+                         tabindex="-1"
+                         aria-labelledby="deleteQuestion{{ question.id }}Label"
+                         aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteQuestion{{ question.id }}Label">
+                                        Frage endgültig löschen?
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Diese Frage wird endgültig gelöscht. Alle Personen, die sie gespeichert haben, sehen sie danach nicht mehr.
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                                    <form method="post" action="{{ url_for('delete_question', question_id=question.id) }}">
+                                        <button class="btn btn-danger">Endgültig löschen</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
             {% endfor %}
         </div>
     {% else %}

@@ -16,20 +16,42 @@
             {% endfor %}
         </div>
 
+        {% if question.is_archived %}
+            <div class="alert alert-secondary py-2">
+                Diese Frage ist archiviert und kann nicht mehr beantwortet werden.
+            </div>
+        {% endif %}
+
         {% if session.user_id %}
-            <form class="mb-3" method="post"
-                  action="{{ url_for('save_question', question_id=question.id) }}">
-                <input type="hidden" name="next" value="{{ return_to }}">
-                <button class="btn btn-sm {{ 'btn-danger' if is_saved else 'btn-outline-danger' }}">
-                    {{ 'Gespeichert' if is_saved else 'Speichern' }}
-                </button>
-            </form>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                {% if not question.is_archived %}
+                    <form method="post" action="{{ url_for('save_question', question_id=question.id) }}">
+                        <input type="hidden" name="next" value="{{ return_to }}">
+                        <button class="btn btn-sm {{ 'btn-danger' if is_saved else 'btn-outline-danger' }}">
+                            {{ 'Gespeichert' if is_saved else 'Speichern' }}
+                        </button>
+                    </form>
+                {% elif is_saved %}
+                    <form method="post" action="{{ url_for('save_question', question_id=question.id) }}">
+                        <input type="hidden" name="next" value="{{ return_to }}">
+                        <button class="btn btn-sm btn-outline-secondary">Entfernen</button>
+                    </form>
+                {% endif %}
+
+                {% if session.user_id == question.user_id %}
+                    <form method="post" action="{{ url_for('archive_question', question_id=question.id) }}">
+                        <button class="btn btn-sm btn-outline-secondary">
+                            {{ 'Archivierung aufheben' if question.is_archived else 'Frage archivieren' }}
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
         {% endif %}
 
         <div class="d-flex justify-content-between align-items-center">
             <small class="text-muted">von {{ question.username }}</small>
             <div class="d-flex gap-2">
-                {% if session.user_id %}
+                {% if session.user_id and not question.is_archived %}
                     <form method="post" action="{{ url_for('vote_question', question_id=question.id, vote=1) }}">
                         <button class="btn btn-sm {{ 'btn-success' if question_vote == 1 else 'btn-outline-success' }}">
                             Hoch {{ question.upvotes }}
@@ -81,6 +103,12 @@
                             <button class="btn btn-sm btn-outline-success">Lösung</button>
                         </form>
                     {% endif %}
+
+                    {% if session.user_id == answer.user_id or session.user_id == question.user_id %}
+                        <form method="post" action="{{ url_for('delete_answer', answer_id=answer.id) }}">
+                            <button class="btn btn-sm btn-outline-secondary">Löschen</button>
+                        </form>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -91,7 +119,11 @@
 
 <div class="card mt-4">
     <div class="card-body">
-        {% if session.user_id %}
+        {% if question.is_archived %}
+            <div class="alert alert-secondary mb-0">
+                Diese Frage ist archiviert. Neue Antworten sind nicht mehr möglich.
+            </div>
+        {% elif session.user_id %}
             <h3>Deine Antwort</h3>
             <form method="post">
                 <textarea class="form-control mb-3" name="content" rows="5" required></textarea>
