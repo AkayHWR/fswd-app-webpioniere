@@ -165,6 +165,8 @@ def question_detail(question_id):
     if request.method == 'POST':
         if 'user_id' not in session:
             return redirect(url_for('login'))
+        if question['is_archived']:
+            return redirect(url_for('question_detail', question_id=question_id))
 
         content = request.form['content'].strip()
         if content != '':
@@ -180,7 +182,7 @@ def question_detail(question_id):
         SELECT a.*, u.first_name || ' ' || u.last_name AS username
         FROM answer a
         JOIN user u ON a.user_id = u.id
-        WHERE a.question_id = ?
+        WHERE a.question_id = ? AND a.is_archived = 0
         ORDER BY a.is_solution DESC, a.upvotes - a.downvotes DESC, a.id DESC
         ''',
         (question_id,)
@@ -195,7 +197,7 @@ def question_detail(question_id):
             SELECT answer_id, vote
             FROM answer_vote
             WHERE user_id = ? AND answer_id IN (
-                SELECT id FROM answer WHERE question_id = ?
+                SELECT id FROM answer WHERE question_id = ? AND is_archived = 0
             )
             ''',
             (session['user_id'], question_id)
@@ -590,7 +592,7 @@ def redirect_to_next(default_endpoint='dashboard', **values):
 def save_question(question_id):
     con = db.get_db_con()
     question = con.execute(
-        'SELECT id FROM question WHERE id = ?',
+        'SELECT id, is_archived FROM question WHERE id = ?',
         (question_id,)
     ).fetchone()
     if question is None:
@@ -600,14 +602,14 @@ def save_question(question_id):
         'SELECT id FROM saved_question WHERE user_id = ? AND question_id = ?',
         (session['user_id'], question_id)
     ).fetchone()
-    if saved is None:
-        con.execute(
-            'INSERT OR IGNORE INTO saved_question (user_id, question_id) VALUES (?, ?)',
-            (session['user_id'], question_id)
-        )
-    else:
+    if saved is not None:
         con.execute(
             'DELETE FROM saved_question WHERE user_id = ? AND question_id = ?',
+            (session['user_id'], question_id)
+        )
+    elif not question['is_archived']:
+        con.execute(
+            'INSERT OR IGNORE INTO saved_question (user_id, question_id) VALUES (?, ?)',
             (session['user_id'], question_id)
         )
 
