@@ -670,3 +670,38 @@ def archive_question(question_id):
     )
     con.commit()
     return redirect(url_for('dashboard'))
+
+@app.route('/answer/<int:answer_id>/delete', methods=['POST'])
+@login_required
+def delete_answer(answer_id):
+    con = db.get_db_con()
+    answer = con.execute(
+        '''
+        SELECT a.*, q.user_id AS question_owner_id, q.is_archived AS question_archived
+        FROM answer a
+        JOIN question q ON q.id = a.question_id
+        WHERE a.id = ?
+        ''',
+        (answer_id,)
+    ).fetchone()
+
+    if answer is None or answer['question_archived']:
+        return redirect(url_for('dashboard'))
+
+    may_archive = (
+        answer['user_id'] == session['user_id']
+        or answer['question_owner_id'] == session['user_id']
+    )
+    if not may_archive:
+        return redirect(url_for('question_detail', question_id=answer['question_id']))
+
+    con.execute(
+        '''
+        UPDATE answer
+        SET is_archived = 1, archived_at = CURRENT_TIMESTAMP, archived_by = ?
+        WHERE id = ?
+        ''',
+        (session['user_id'], answer_id)
+    )
+    con.commit()
+    return redirect(url_for('question_detail', question_id=answer['question_id']))

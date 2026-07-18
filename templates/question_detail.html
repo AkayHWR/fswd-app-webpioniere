@@ -103,6 +103,12 @@
                             <button class="btn btn-sm btn-outline-success">Lösung</button>
                         </form>
                     {% endif %}
+
+                    {% if session.user_id == answer.user_id or session.user_id == question.user_id %}
+                        <form method="post" action="{{ url_for('delete_answer', answer_id=answer.id) }}">
+                            <button class="btn btn-sm btn-outline-secondary">Löschen</button>
+                        </form>
+                    {% endif %}
                 </div>
             </div>
         </div>
