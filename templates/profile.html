@@ -95,6 +95,13 @@
                         <div class="text-end text-nowrap question-card-meta">
                             {% if question.is_archived %}
                                 <span class="badge text-bg-secondary">Archiviert</span>
+                                <div class="question-card-actions mt-2">
+                                    <button class="btn btn-sm btn-outline-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteQuestion{{ question.id }}">
+                                        Endgültig löschen
+                                    </button>
+                                </div>
                             {% else %}
                                 <div>{{ question.answer_count }} Antworten</div>
                                 <small>{{ question.upvotes }} hoch / {{ question.downvotes }} runter</small>
@@ -102,6 +109,34 @@
                         </div>
                     </div>
                 </div>
+
+                {% if question.is_archived %}
+                    <div class="modal fade"
+                         id="deleteQuestion{{ question.id }}"
+                         tabindex="-1"
+                         aria-labelledby="deleteQuestion{{ question.id }}Label"
+                         aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteQuestion{{ question.id }}Label">
+                                        Frage endgültig löschen?
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Diese Frage wird endgültig gelöscht. Alle Personen, die sie gespeichert haben, sehen sie danach nicht mehr.
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                                    <form method="post" action="{{ url_for('delete_question', question_id=question.id) }}">
+                                        <button class="btn btn-danger">Endgültig löschen</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
             {% endfor %}
         </div>
     {% else %}

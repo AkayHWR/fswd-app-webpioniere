@@ -705,3 +705,28 @@ def delete_answer(answer_id):
     )
     con.commit()
     return redirect(url_for('question_detail', question_id=answer['question_id']))
+
+@app.route('/question/<int:question_id>/delete', methods=['POST'])
+@login_required
+def delete_question(question_id):
+    con = db.get_db_con()
+    question = con.execute(
+        'SELECT * FROM question WHERE id = ?',
+        (question_id,)
+    ).fetchone()
+
+    if question is None:
+        return redirect(url_for('profile'))
+    if question['user_id'] != session['user_id'] or not question['is_archived']:
+        return redirect(url_for('question_detail', question_id=question_id))
+
+    con.execute(
+        'DELETE FROM answer_vote WHERE answer_id IN (SELECT id FROM answer WHERE question_id = ?)',
+        (question_id,)
+    )
+    con.execute('DELETE FROM question_vote WHERE question_id = ?', (question_id,))
+    con.execute('DELETE FROM saved_question WHERE question_id = ?', (question_id,))
+    con.execute('DELETE FROM answer WHERE question_id = ?', (question_id,))
+    con.execute('DELETE FROM question WHERE id = ?', (question_id,))
+    con.commit()
+    return redirect(url_for('profile'))
