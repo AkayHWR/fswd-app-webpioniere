@@ -520,7 +520,7 @@ def dashboard():
 @app.route('/api/questions')
 def api_questions():
     con = db.get_db_con()
-    questions = con.execute('SELECT * FROM question ORDER BY id DESC').fetchall()
+    questions = con.execute('SELECT * FROM question WHERE is_archived = 0 ORDER BY id DESC').fetchall()
     return jsonify([dict(question) for question in questions])
 
 
