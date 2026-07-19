@@ -1,9 +1,9 @@
 INSERT INTO user (email, first_name, last_name, password) VALUES
-('anna@stud.hwr-berlin.de', 'Anna', 'Schmidt', 'passwort'),
-('max@stud.hwr-berlin.de', 'Max', 'Mueller', 'passwort'),
-('julia@stud.hwr-berlin.de', 'Julia', 'Fischer', 'passwort'),
-('tobias@stud.hwr-berlin.de', 'Tobias', 'Weber', 'passwort'),
-('sara@stud.hwr-berlin.de', 'Sara', 'Klein', 'passwort');
+('anna@stud.hwr-berlin.de', 'Anna', 'Schmidt', 'scrypt:32768:8:1$MNYzYVsmljf8TTMx$df034b3c274a71dff52869dcbeee480896350649b2e548ea9b83181a8d126345cd7dd2fb4da5e0355ce6ccb76561b9cf601a9d57202d2f8d3fcde7a4bb388264'),
+('max@stud.hwr-berlin.de', 'Max', 'Mueller', 'scrypt:32768:8:1$49bmxGZzweJzzqnB$d768091e3bc44d9238e98ca312f69069a72cbe636afcbb2a0a168d70df30e45c0fe0ea6962f0e0fbc1b56e30a5a3adf75b4302c7b2c4abc6ac818cb5d606e11c'),
+('julia@stud.hwr-berlin.de', 'Julia', 'Fischer', 'scrypt:32768:8:1$GnQNaErRMYTRJP7T$699699f21b36e582606b9a09f7d53466815d9138be18455e9eb68e711d8c8d8f78e3dbf7318ac972e0f2dd78cf1a609b3c0a211207f83cbe6c4df828399f2905'),
+('tobias@stud.hwr-berlin.de', 'Tobias', 'Weber', 'scrypt:32768:8:1$mFzcTe289CBtLAgQ$707ce8eb7f51912995e44d498f857166698a42a13795f1469f038b251525ffe99e58cf669dbce81c4c62ed09d0d8aaa178e00c801ce2bf85ad6a25360b2e75b8'),
+('sara@stud.hwr-berlin.de', 'Sara', 'Klein', 'scrypt:32768:8:1$QgmexJ6gqMIvmAHs$a284e8b5f80f9cb721cdfc46d70399b6ab7a2610a42d1d366b1f05d18701234beaa46729ad706f2664ee725c243c382ac1200160a1e7ea910e3c313dc0d0ca54');
 
 INSERT INTO question (user_id, title, description, hashtags, upvotes, downvotes) VALUES
 (1, 'Welche Vertiefung lohnt sich?', 'Ich bin unsicher, welche Vertiefung am besten passt.', '#Vertiefung #Studium', 2, 0),

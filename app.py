@@ -2,6 +2,7 @@ import os
 import re
 from functools import wraps
 from flask import Flask, jsonify, render_template, redirect, url_for, request, session
+from werkzeug.security import generate_password_hash, check_password_hash
 import db
 
 app = Flask(__name__)
@@ -366,12 +367,13 @@ def register():
                 error='Für diese E-Mail-Adresse existiert bereits ein Account.'
             )
 
+        password_hash = generate_password_hash(password)
         cursor = con.execute(
             '''
             INSERT INTO user (email, first_name, last_name, password)
             VALUES (?, ?, ?, ?)
             ''',
-            (email, first_name, last_name, password)
+            (email, first_name, last_name, password_hash)
         )
         con.commit()
 
@@ -401,7 +403,7 @@ def login():
             (email,)
         ).fetchone()
 
-        if user is None or user['password'] != password:
+        if user is None or not check_password_hash(user['password'], password):
             return render_template(
                 'login.html',
                 error='E-Mail oder Passwort ist falsch.'
