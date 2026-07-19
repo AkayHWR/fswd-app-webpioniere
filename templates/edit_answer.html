@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}
+Antwort bearbeiten
+{% endblock %}
+
+{% block content %}
+
+<h2>Antwort bearbeiten</h2>
+
+<form method="post">
+
+    <textarea
+        class="form-control mb-3"
+        name="content"
+        rows="5"
+        required>{{ answer.content }}</textarea>
+
+    <button class="btn btn-danger">
+        Speichern
+    </button>
+
+    <a class="btn btn-secondary"
+       href="{{ url_for('question_detail', question_id=answer.question_id) }}">
+        Abbrechen
+    </a>
+
+</form>
+
+{% endblock %}

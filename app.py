@@ -318,6 +318,54 @@ def solution(answer_id):
         )
     )
 
+
+@app.route('/answer/<int:answer_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_answer(answer_id):
+
+    con = db.get_db_con()
+
+    answer = con.execute(
+        'SELECT * FROM answer WHERE id = ?',
+        (answer_id,)
+    ).fetchone()
+
+    if answer is None:
+        return redirect(url_for('dashboard'))
+
+    if answer['user_id'] != session['user_id']:
+        return redirect(
+            url_for(
+                'question_detail',
+                question_id=answer['question_id']
+            )
+        )
+
+    if request.method == 'POST':
+
+        content = request.form['content'].strip()
+
+        if content:
+
+            con.execute(
+                'UPDATE answer SET content = ? WHERE id = ?',
+                (content, answer_id)
+            )
+
+            con.commit()
+
+            return redirect(
+                url_for(
+                    'question_detail',
+                    question_id=answer['question_id']
+                )
+            )
+
+    return render_template(
+        'edit_answer.html',
+        answer=answer
+    )
+
 def hwr_email(email):
     email = email.strip().lower()
     return email.endswith('@stud.hwr-berlin.de')
