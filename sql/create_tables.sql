@@ -35,6 +35,7 @@ CREATE TABLE answer (
     archived_at TEXT,
     archived_by INTEGER,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    is_edited INTEGER DEFAULT 0,
 
     FOREIGN KEY (question_id) REFERENCES question (id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE,

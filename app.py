@@ -348,7 +348,7 @@ def edit_answer(answer_id):
         if content:
 
             con.execute(
-                'UPDATE answer SET content = ? WHERE id = ?',
+                'UPDATE answer SET content = ?, is_edited = 1 WHERE id = ?',
                 (content, answer_id)
             )
 
