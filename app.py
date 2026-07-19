@@ -16,7 +16,7 @@ app.teardown_appcontext(db.close_db_con)
 
 
 def hashtags_from_text(text):
-    tags = re.findall(r'#[A-Za-z0-9_ÄÖÜäöüß]+', text)
+    tags = re.findall(r'#[A-Za-z0-9_ÄÖÜäöüß]+', text.lower())
     return sorted(set(tags))
 
 def all_hashtags():
