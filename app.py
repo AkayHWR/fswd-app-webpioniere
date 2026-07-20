@@ -366,6 +366,68 @@ def edit_answer(answer_id):
         answer=answer
     )
 
+
+@app.route('/question/<int:question_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_question(question_id):
+
+    con = db.get_db_con()
+
+    question = con.execute(
+        'SELECT * FROM question WHERE id = ?',
+        (question_id,)
+    ).fetchone()
+
+    if question is None:
+        return redirect(url_for('dashboard'))
+
+    if question['user_id'] != session['user_id']:
+        return redirect(url_for('question_detail', question_id=question_id))
+
+    if request.method == 'POST':
+
+        title = request.form['title'].strip()
+        description = request.form['description'].strip()
+        hashtags = ' '.join(hashtags_from_text(request.form['hashtags']))
+
+        form_question = {
+            'id': question['id'],
+            'title': title,
+            'description': description,
+            'hashtags': hashtags,
+        }
+
+        if title == '' or description == '':
+            return render_template(
+                'edit_question.html',
+                question=form_question,
+                error='Titel und Beschreibung sind Pflicht.'
+            )
+        if hashtags == '':
+            return render_template(
+                'edit_question.html',
+                question=form_question,
+                error='Bitte trage mindestens einen Hashtag ein.'
+            )
+
+        con.execute(
+            '''
+            UPDATE question
+            SET title = ?, description = ?, hashtags = ?, is_edited = 1
+            WHERE id = ?
+            ''',
+            (title, description, hashtags, question_id)
+        )
+
+        con.commit()
+
+        return redirect(url_for('question_detail', question_id=question_id))
+
+    return render_template(
+        'edit_question.html',
+        question=question
+    )
+
 def hwr_email(email):
     email = email.strip().lower()
     return email.endswith('@stud.hwr-berlin.de')
