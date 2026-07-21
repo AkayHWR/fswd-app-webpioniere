@@ -46,7 +46,9 @@ Der Ersteller einer Frage kann einen Kommentar als Lösung markieren. Zusätzlic
 
 Ein Leaderboard zeigt besonders aktive und hilfreiche Nutzer der Plattform an.
 
-Häufig gestellte Fragen können erkannt werden, damit Nutzer schneller auf bestehende Antworten verwiesen werden können.
+Es gibt die Möglichkeit fragen zu speichern, welche dann im Profil-Bereich der angemeldeten Nutzer angezeigt werden. Darauf aufbauend gibt es die Möglichkeit fragen zu archivieren (diese werden immer noch im Profil-Bereich angezeigt, sonst nirgendswo anders) und diese archivierten Fragen endgültig zu löschen, wodurch niemand mehr diese Fragen sehen kann, da Sie auf DB-Ebene gelöscht werden.
+
+Des Weiteren gibt es die Möglichkeit Fragen und Antworten zu bearbeiten und ebenfalls zu löschen.
 
 ## Target User(s)
 
@@ -70,13 +72,15 @@ Er hat bereits Erfahrungen im Studium gesammelt und möchte sein Wissen mit ande
 
 Ein Nutzer öffnet die Web App und registriert sich mit seiner HWR Studentenmail oder loggt sich ein.
 
-Danach gelangt er zum Dashboard und erstellt eine Frage mit Titel, Beschreibung und Kategorie, zum Beispiel zum Thema Dozenten, Vertiefungen oder Bachelorarbeit.
+Danach gelangt er zum Dashboard und erstellt eine Frage mit Titel, Beschreibung und Hashtag, zum Beispiel zum Thema Dozenten, Vertiefungen oder Bachelorarbeit.
 
 Andere Nutzer durchsuchen die Beiträge, öffnen die Detailansicht und schreiben Kommentare oder teilen ihre Erfahrungen.
 
 Kommentare können bewertet werden. Der Ersteller der Frage markiert den hilfreichsten Kommentar als Lösung. Aktive Nutzer steigen im Leaderboard auf.
 
 Dieser Ablauf zeigt die Funktionsweise der Plattform, bei der Studierende ihr Wissen und ihre Erfahrungen miteinander teilen.
+
+Fragen, die für eine Person wichtig erscheinen/relevant erscheinen, können gespeichert werden, wodurch der erneute Zugriff über den Profil-Bereich sehr einfach ist.
 
 ---
 
