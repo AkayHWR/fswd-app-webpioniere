@@ -18,6 +18,7 @@ CREATE TABLE question (
     archived_at TEXT,
     archived_by INTEGER,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    is_edited INTEGER DEFAULT 0,
 
     FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE,
     FOREIGN KEY (archived_by) REFERENCES user (id) ON DELETE SET NULL
